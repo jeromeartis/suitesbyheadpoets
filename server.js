@@ -36,8 +36,18 @@ app.use(
 );
 
 // ---------- static files ----------
-const uploadsDir = path.join(__dirname, 'public', 'uploads');
+// UPLOADS_DIR lets the host keep user-uploaded images on a persistent volume
+// (e.g. a Render disk at /var/data/uploads) instead of the ephemeral public/
+// dir, which is wiped on every deploy. Falls back to public/uploads locally.
+const uploadsDir = process.env.UPLOADS_DIR || path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+// Photo paths are stored in the DB as "/uploads/<file>"; map one back to its
+// real location on disk (guarding against path traversal via the basename).
+const uploadFilePath = (storedPath) => path.join(uploadsDir, path.basename(storedPath));
+
+// Serve uploads from uploadsDir explicitly, then the rest of public/ as usual.
+app.use('/uploads', express.static(uploadsDir));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ---------- photo upload config ----------
@@ -221,8 +231,7 @@ app.put('/api/barbers/:id', requireAuth, upload.single('photo'), asyncRoute(asyn
     photo = `/uploads/${await saveProcessedImage(req.file.buffer, { prefix: 'barber', maxDimension: 1200 })}`;
     // clean up old photo file if it was a local upload
     if (existing.photo && existing.photo.startsWith('/uploads/')) {
-      const oldPath = path.join(__dirname, 'public', existing.photo);
-      fs.unlink(oldPath, () => {});
+      fs.unlink(uploadFilePath(existing.photo), () => {});
     }
   }
 
@@ -277,8 +286,7 @@ app.delete('/api/gallery/:photoId', requireAuth, (req, res) => {
 
   db.prepare('DELETE FROM gallery_photos WHERE id = ?').run(row.id);
 
-  const filePath = path.join(__dirname, 'public', row.photo.replace(/^\//, ''));
-  fs.unlink(filePath, () => {}); // best-effort; don't fail the request if the file's already gone
+  fs.unlink(uploadFilePath(row.photo), () => {}); // best-effort; don't fail the request if the file's already gone
 
   res.json({ ok: true });
 });
@@ -447,7 +455,7 @@ app.delete('/api/barber/me/gallery/:photoId', requireBarberAuth, (req, res) => {
   if (!row || row.barber_id !== req.session.barberId) return res.status(404).json({ error: 'Photo not found' });
 
   db.prepare('DELETE FROM gallery_photos WHERE id = ?').run(row.id);
-  fs.unlink(path.join(__dirname, 'public', row.photo.replace(/^\//, '')), () => {});
+  fs.unlink(uploadFilePath(row.photo), () => {});
   res.json({ ok: true });
 });
 
