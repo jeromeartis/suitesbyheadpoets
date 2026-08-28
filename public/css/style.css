@@ -881,6 +881,23 @@ footer {
   .admin-side button.active { border-left: none; border-bottom-color: var(--brass); }
 }
 
+/* ---------- tablet PORTRAIT only: make the walk-in CTA the standout action ----------
+   Landscape tablets get the normal desktop layout; this only fires when a tablet
+   is held upright (portrait), where screen space is tighter. Range covers the
+   iPad Mini (744px) up through the 12.9" Pro (1024px). */
+@media (min-width: 700px) and (max-width: 1024px) and (orientation: portrait) {
+  /* drop it onto its own full-width row below "Choose a barber" */
+  .hero-actions .btn-walkin {
+    flex: 1 1 100%;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 0 0 6px rgba(166,71,63,0.30);
+  }
+  .hero-actions .btn-walkin:hover {
+    box-shadow: 0 0 0 9px rgba(166,71,63,0.34);
+  }
+}
+
 /* ---------- phones ---------- */
 @media (max-width: 560px) {
   .wrap { padding: 0 16px; }

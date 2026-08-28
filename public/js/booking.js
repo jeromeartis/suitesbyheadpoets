@@ -523,6 +523,11 @@ function openWalkinModal() {
 function closeWalkinModal() {
   walkinOverlay.style.display = 'none';
 }
+// After a successful check-in, send the customer back to the top of the home page.
+function returnHomeFromWalkin() {
+  closeWalkinModal();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 if (openWalkinBtn) openWalkinBtn.addEventListener('click', openWalkinModal);
 if (closeWalkinBtn) closeWalkinBtn.addEventListener('click', closeWalkinModal);
@@ -568,9 +573,10 @@ if (submitWalkinBtn) {
       document.getElementById('walkin-sms-consent').checked = false;
       if (allFake) {
         banner.innerHTML = `<div class="banner info">You're checked in! Testing mode — SMS isn't configured, so here's the text ${data.sentTo} barber${data.sentTo === 1 ? '' : 's'} would have gotten:<br><strong>${escapeHtml(data.body)}</strong></div>`;
+        setTimeout(returnHomeFromWalkin, 4500);
       } else {
         banner.innerHTML = `<div class="banner success">You're checked in! We texted the barbers — first one free will grab you.</div>`;
-        setTimeout(closeWalkinModal, 2200);
+        setTimeout(returnHomeFromWalkin, 2200);
       }
     } catch (err) {
       banner.innerHTML = `<div class="banner error">${escapeHtml(err.message)}</div>`;
