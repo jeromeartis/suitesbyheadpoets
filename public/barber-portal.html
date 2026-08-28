@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barber Portal — SuitesByHeadPoets</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="mark">SH</span>SuitesByHeadPoets</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <span>Barber Portal</span>
+      <a href="#" id="logout-link" style="display:none;">Sign out</a>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-shell" id="login-shell">
+  <div class="card login-card">
+    <span class="eyebrow">Barber login</span>
+    <h2>Manage your profile</h2>
+    <div id="login-banner"></div>
+
+    <div id="login-password-step">
+      <div class="form-row">
+        <label>Mobile number</label>
+        <input type="tel" id="login-phone" placeholder="(555) 123-4567" autocomplete="tel">
+      </div>
+      <div class="form-row">
+        <label>Password</label>
+        <div class="password-input-wrap">
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="password-toggle-btn" data-target="login-password" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="login-btn">Sign in</button>
+      <button type="button" class="link-btn" id="barber-forgot-password-link" style="margin-top:10px;">Forgot password?</button>
+      <p style="margin-bottom:0; color:var(--paper-dim); font-size:0.85rem;">No account yet? Ask the shop to send you an invite link by text.</p>
+    </div>
+
+    <!-- Forgot password: request code -> enter code + new password -->
+    <div id="barber-forgot-request-step" style="display:none;">
+      <p style="margin-top:0;">Enter your number and we'll text you a reset code.</p>
+      <div class="form-row">
+        <label>Mobile number</label>
+        <input type="tel" id="barber-forgot-phone" placeholder="(555) 123-4567">
+      </div>
+      <button class="btn btn-primary btn-block" id="barber-forgot-send-code-btn">Send reset code</button>
+      <button type="button" class="link-btn" id="barber-forgot-cancel-btn" style="margin-top:10px;">Back to sign in</button>
+    </div>
+    <div id="barber-forgot-reset-step" style="display:none;">
+      <p style="margin-top:0;">Enter the code we texted you, then choose a new password.</p>
+      <div class="form-row">
+        <label>Code</label>
+        <input type="text" id="barber-forgot-code" inputmode="numeric" maxlength="6" placeholder="123456">
+      </div>
+      <div class="form-row">
+        <label>New password</label>
+        <div class="password-input-wrap">
+          <input type="password" id="barber-forgot-new-password" placeholder="At least 10 characters, incl. a special character" autocomplete="new-password">
+          <button type="button" class="password-toggle-btn" data-target="barber-forgot-new-password" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="barber-forgot-reset-btn">Set new password &amp; sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- PORTAL -->
+<div id="portal-shell" style="display:none;">
+  <section class="section" style="padding-top:40px;">
+    <div class="wrap">
+      <span class="eyebrow">Your profile</span>
+      <h2 id="welcome-heading">Welcome back</h2>
+      <p style="max-width:52ch;">You can update your own bio, photo, hours, services, gallery, and payment QR code. Your name, phone, and booth number are managed by the shop.</p>
+    </div>
+  </section>
+
+  <section class="section" id="portal-pending-section" style="padding-top:0; display:none;">
+    <div class="wrap">
+      <div class="card" style="border-color:var(--brass);">
+        <h3>🔔 Pending appointment requests</h3>
+        <p style="max-width:50ch;">Waiting on you — approve or decline before the customer's slot gets released to someone else.</p>
+        <div id="portal-pending-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="portal-walkin-section" style="padding-top:0; display:none;">
+    <div class="wrap">
+      <div class="card" style="border-color:var(--brass);">
+        <h3>🚶 Walk-in waiting</h3>
+        <p style="max-width:50ch;">First to accept gets them — same as replying "2" to the text.</p>
+        <div id="portal-walkin-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="card">
+        <h3>Basics</h3>
+        <div id="save-banner"></div>
+        <form id="profile-form">
+          <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px;">
+            <div id="photo-preview" style="width:80px;height:80px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--ink);border:1px solid var(--line);flex-shrink:0;"></div>
+            <div class="form-row" style="margin-bottom:0; flex:1;">
+              <label>Profile photo</label>
+              <input type="file" id="photo-input" accept="image/*">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label>Email</label>
+              <input type="email" id="email-input">
+            </div>
+            <div class="form-row">
+              <label>Specialty</label>
+              <input type="text" id="specialty-input" placeholder="e.g. Skin fades, beard sculpting">
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Bio</label>
+            <textarea id="bio-input" rows="3"></textarea>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label class="label-with-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.7" stroke="currentColor" stroke-width="2"/><circle cx="17.6" cy="6.4" r="1.15" fill="currentColor"/></svg>Instagram (optional)</label>
+              <input type="text" id="instagram-input" placeholder="@handle or full URL">
+            </div>
+            <div class="form-row">
+              <label class="label-with-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Twitter / X (optional)</label>
+              <input type="text" id="twitter-input" placeholder="@handle or full URL">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>Weekly hours</label>
+            <div id="avail-editor"></div>
+          </div>
+
+          <div class="form-row">
+            <label>Services &amp; pricing</label>
+            <div id="services-editor"></div>
+            <button type="button" class="btn btn-outline" id="add-service-row" style="margin-top:8px;">+ Add service</button>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div><span class="eyebrow">Your schedule</span><h2 style="margin:0;">Appointments</h2></div>
+        <button type="button" class="btn btn-outline" id="open-customers-modal-btn">👥 Manage my customers</button>
+      </div>
+      <p id="portal-appointments-range" style="margin-top:-14px;color:var(--paper-dim);font-size:0.9rem;"></p>
+      <div id="portal-appointments-list"></div>
+      <button type="button" class="btn btn-outline" id="portal-show-next-week-btn" style="margin-top:14px;">Show next week</button>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="card">
+        <h3>Book a customer</h3>
+        <p style="max-width:50ch;">Booking a walk-in, a phone call, or anyone else onto your own schedule. If the phone number is new, an account is created for them automatically.</p>
+        <div id="pb-banner"></div>
+        <div class="form-row">
+          <label>Existing customer</label>
+          <select id="pb-existing-customer"><option value="">— New customer —</option></select>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row"><label>Customer name</label><input type="text" id="pb-customer-name" autocomplete="off"></div>
+          <div class="form-row"><label>Customer phone</label><input type="tel" id="pb-customer-phone" placeholder="(555) 123-4567" autocomplete="off"></div>
+        </div>
+        <div class="form-row"><label>Email (optional)</label><input type="email" id="pb-customer-email" autocomplete="off"></div>
+        <div class="form-row"><label>Service</label><select id="pb-service"></select></div>
+        <div class="form-row">
+          <label>Date</label>
+          <div class="calendar-widget" id="pb-calendar"></div>
+        </div>
+        <div class="form-row">
+          <label>Open slots</label>
+          <div class="slot-grid" id="pb-slot-grid"><p style="color:var(--paper-dim)">Pick a date to see open times.</p></div>
+          <div class="slot-legend">
+            <span><span class="legend-dot open"></span>Open</span>
+            <span><span class="legend-dot taken"></span>Booked</span>
+            <span><span class="legend-dot selected"></span>Selected</span>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="pb-confirm-btn">Book appointment</button>
+        <button type="button" class="btn btn-outline btn-block" id="open-recurring-modal-btn" style="margin-top:10px;">🔁 Set up a recurring appointment</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="card">
+        <h3>Payment QR code</h3>
+        <p style="max-width:50ch;">Upload a QR code (Venmo, CashApp, Zelle, etc.) so customers can pay you directly. Shown on your public profile.</p>
+        <div id="qr-preview-wrap" style="margin-bottom:14px;"></div>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <div class="form-row" style="margin-bottom:0; flex:1; min-width:200px;">
+            <input type="file" id="qr-input" accept="image/*">
+          </div>
+          <button type="button" class="btn btn-outline" id="qr-upload-btn">Upload QR code</button>
+        </div>
+        <div id="qr-banner" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="card">
+        <h3>Haircut gallery</h3>
+        <p style="max-width:50ch;">Photos of your work, shown on your public profile.</p>
+        <div class="gallery-grid" id="gallery-grid"></div>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-top:10px;">
+          <div class="form-row" style="flex:1; min-width:160px; margin-bottom:0;">
+            <label>Add photo(s)</label>
+            <input type="file" id="gallery-photo-input" accept="image/*" multiple>
+          </div>
+          <div class="form-row" style="flex:1; min-width:160px; margin-bottom:0;">
+            <label>Caption (optional)</label>
+            <input type="text" id="gallery-caption-input" placeholder="e.g. Skin fade — applies to all selected photos">
+          </div>
+          <button type="button" class="btn btn-outline" id="gallery-upload-btn">Add to gallery</button>
+        </div>
+        <div id="gallery-banner" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- RECURRING APPOINTMENT MODAL -->
+<div class="modal-overlay" id="recurring-modal-overlay" style="display:none;">
+  <div class="card modal-card modal-card-wide">
+    <button type="button" class="modal-close" id="close-recurring-modal-btn" aria-label="Close">×</button>
+    <span class="eyebrow">Recurring appointment</span>
+    <h2 style="margin-top:4px;">Book a repeating series</h2>
+    <p style="max-width:50ch;">Same customer, same time, on a repeating schedule — up to 14 weeks out. Any date that conflicts with something already booked is skipped automatically.</p>
+    <div id="recur-banner"></div>
+
+    <div class="form-row">
+      <label>Existing customer</label>
+      <select id="recur-existing-customer"><option value="">— New customer —</option></select>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Customer name</label><input type="text" id="recur-customer-name" autocomplete="off"></div>
+      <div class="form-row"><label>Customer phone</label><input type="tel" id="recur-customer-phone" placeholder="(555) 123-4567" autocomplete="off"></div>
+    </div>
+    <div class="form-row"><label>Email (optional)</label><input type="email" id="recur-customer-email" autocomplete="off"></div>
+    <div class="form-row"><label>Service</label><select id="recur-service"></select></div>
+    <div class="form-row">
+      <label>Repeats</label>
+      <select id="recur-cadence">
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Every 2 weeks</option>
+        <option value="monthly">Every 4 weeks</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Start date</label>
+      <div class="calendar-widget" id="recur-calendar"></div>
+    </div>
+    <div class="form-row">
+      <label>Time (same each occurrence)</label>
+      <div class="slot-grid" id="recur-slot-grid"><p style="color:var(--paper-dim)">Pick a start date to see open times.</p></div>
+    </div>
+    <div class="form-row">
+      <label>End date <span style="color:var(--paper-dim);font-weight:normal;text-transform:none;">(up to 14 weeks after the start date)</span></label>
+      <input type="date" id="recur-end-date">
+    </div>
+
+    <button class="btn btn-primary btn-block" id="recur-confirm-btn">Book recurring series</button>
+  </div>
+</div>
+
+<!-- MANAGE CUSTOMERS MODAL -->
+<div class="modal-overlay" id="customers-modal-overlay" style="display:none;">
+  <div class="card modal-card modal-card-wide">
+    <button type="button" class="modal-close" id="close-customers-modal-btn" aria-label="Close">×</button>
+    <span class="eyebrow">Your customers</span>
+    <h2 style="margin-top:4px;">Manage customers</h2>
+    <p style="max-width:50ch;">Everyone who's booked with you. Mark your regulars as preferred so their future bookings skip the approval step.</p>
+    <div id="customers-modal-list"></div>
+  </div>
+</div>
+
+<script src="/js/barber-portal.js"></script>
+</body>
+</html>

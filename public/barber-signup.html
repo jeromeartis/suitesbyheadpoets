@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set up your barber login — SuitesByHeadPoets</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="login-shell">
+  <div class="card login-card" id="signup-card">
+    <span class="eyebrow">You're invited</span>
+    <h2 id="invite-heading">Set up your login</h2>
+    <div id="signup-banner"></div>
+
+    <div id="signup-form-wrap" style="display:none;">
+      <p id="invite-greeting" style="margin-top:0;"></p>
+      <div class="form-row">
+        <label>Choose a password</label>
+        <div class="password-input-wrap">
+          <input type="password" id="password-input" placeholder="At least 10 characters, incl. a special character" autocomplete="new-password">
+          <button type="button" class="password-toggle-btn" data-target="password-input" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Confirm password</label>
+        <div class="password-input-wrap">
+          <input type="password" id="confirm-password-input" placeholder="Re-enter your password" autocomplete="new-password">
+          <button type="button" class="password-toggle-btn" data-target="confirm-password-input" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="signup-btn">Set password &amp; sign in</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/barber-signup.js"></script>
+</body>
+</html>

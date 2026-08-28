@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Your Appointment — SuitesByHeadPoets</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="mark">SH</span>SuitesByHeadPoets</a>
+    <div class="nav-links"><a href="/">Home</a></div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap" style="max-width:640px;">
+    <span class="eyebrow">Your appointment</span>
+    <h2>Change or cancel</h2>
+    <div id="manage-banner"></div>
+
+    <div id="manage-content" style="display:none;">
+      <div class="card" id="appt-summary" style="margin-bottom:20px;"></div>
+
+      <div id="cancelled-notice" style="display:none;">
+        <div class="banner info">This appointment has already been cancelled. Head to the <a href="/" style="color:var(--brass);">booking page</a> to book a new one.</div>
+      </div>
+
+      <div id="active-actions">
+        <div class="card" style="margin-bottom:20px;">
+          <h3>Pick a new time</h3>
+          <div class="form-row"><label>Date</label><div class="calendar-widget" id="resched-calendar"></div></div>
+          <div class="form-row"><label>Open slots</label><div class="slot-grid" id="resched-slot-grid"></div></div>
+          <button class="btn btn-primary btn-block" id="resched-confirm-btn">Confirm new time</button>
+        </div>
+        <button class="btn btn-danger btn-block" id="cancel-appt-btn">Cancel this appointment instead</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>SuitesByHeadPoets</footer>
+
+<script src="/js/manage.js"></script>
+</body>
+</html>

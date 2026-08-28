@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account — SuitesByHeadPoets</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="mark">SH</span>SuitesByHeadPoets</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="#" id="logout-link" style="display:none;">Log out</a>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN / SIGNUP -->
+<div class="login-shell" id="login-shell">
+  <div class="card login-card">
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" id="tab-signin-btn">Sign in</button>
+      <button type="button" class="auth-tab" id="tab-signup-btn">Create account</button>
+    </div>
+    <div id="login-banner"></div>
+
+    <!-- SIGN IN -->
+    <div id="signin-panel">
+      <div id="signin-password-step">
+        <div class="form-row">
+          <label>Mobile number</label>
+          <input type="tel" id="signin-phone" placeholder="(555) 123-4567" autocomplete="tel">
+        </div>
+        <div class="form-row">
+          <label>Password</label>
+          <div class="password-input-wrap">
+            <input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password">
+            <button type="button" class="password-toggle-btn" data-target="signin-password" aria-label="Show password">👁</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="signin-btn">Sign in</button>
+        <button type="button" class="link-btn" id="forgot-password-link" style="margin-top:10px;">Forgot password?</button>
+      </div>
+
+      <!-- Forgot password: request code -> enter code + new password -->
+      <div id="forgot-request-step" style="display:none;">
+        <p style="margin-top:0;">Enter your number and we'll text you a reset code.</p>
+        <div class="form-row">
+          <label>Mobile number</label>
+          <input type="tel" id="forgot-phone" placeholder="(555) 123-4567" autocomplete="off">
+        </div>
+        <button class="btn btn-primary btn-block" id="forgot-send-code-btn">Send reset code</button>
+        <button type="button" class="link-btn" id="forgot-cancel-btn" style="margin-top:10px;">Back to sign in</button>
+      </div>
+      <div id="forgot-reset-step" style="display:none;">
+        <p style="margin-top:0;">Enter the code we texted you, then choose a new password.</p>
+        <div class="form-row">
+          <label>Code</label>
+          <input type="text" id="forgot-code" inputmode="numeric" maxlength="6" placeholder="123456">
+        </div>
+        <div class="form-row">
+          <label>New password</label>
+          <div class="password-input-wrap">
+            <input type="password" id="forgot-new-password" placeholder="At least 10 characters, incl. a special character" autocomplete="new-password">
+            <button type="button" class="password-toggle-btn" data-target="forgot-new-password" aria-label="Show password">👁</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="forgot-reset-btn">Set new password &amp; sign in</button>
+      </div>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="signup-panel" style="display:none;">
+      <div id="signup-details-step">
+        <div class="form-row">
+          <label>Name</label>
+          <input type="text" id="signup-name" placeholder="Jordan Lee" autocomplete="name">
+        </div>
+        <div class="form-row">
+          <label>Mobile number</label>
+          <input type="tel" id="signup-phone" placeholder="(555) 123-4567" autocomplete="tel">
+        </div>
+        <div class="form-row">
+          <label style="display:flex; align-items:flex-start; gap:8px; font-weight:400;">
+            <input type="checkbox" id="signup-sms-consent" style="margin-top:3px;">
+            <span>I agree to receive appointment texts (confirmations, reminders, changes) from SuitesByHeadPoets at this number. Msg &amp; data rates may apply, message frequency varies. Reply STOP to opt out, HELP for help. See our <a href="/privacy.html" target="_blank" style="color:inherit; text-decoration:underline;">SMS &amp; privacy terms</a>.</span>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Email (optional)</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="form-row">
+          <label>Preferred barber (optional)</label>
+          <select id="signup-preferred-barber"><option value="">No preference</option></select>
+        </div>
+        <div class="form-row">
+          <label>Password</label>
+          <div class="password-input-wrap">
+            <input type="password" id="signup-password" placeholder="At least 10 characters, incl. a special character" autocomplete="new-password">
+            <button type="button" class="password-toggle-btn" data-target="signup-password" aria-label="Show password">👁</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Confirm password</label>
+          <div class="password-input-wrap">
+            <input type="password" id="signup-confirm-password" placeholder="Re-enter your password" autocomplete="new-password">
+            <button type="button" class="password-toggle-btn" data-target="signup-confirm-password" aria-label="Show password">👁</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="signup-send-code-btn">Send verification code</button>
+      </div>
+      <div id="signup-code-step" style="display:none;">
+        <p style="margin-top:0;">We texted a 6-digit code to <span id="signup-code-phone-display"></span>.</p>
+        <div class="form-row">
+          <label>Enter code</label>
+          <input type="text" id="signup-code" inputmode="numeric" maxlength="6" placeholder="123456">
+        </div>
+        <button class="btn btn-primary btn-block" id="signup-verify-btn">Verify &amp; create account</button>
+        <button type="button" class="link-btn" id="signup-back-btn" style="margin-top:10px;">Use a different number</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNT DASHBOARD -->
+<div id="account-shell" style="display:none;">
+  <section class="section" style="padding-top:40px;">
+    <div class="wrap">
+      <span class="eyebrow">Your account</span>
+      <h2 id="welcome-heading">Welcome back</h2>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="card" style="border-color:var(--brass);">
+        <h3>Your next appointment</h3>
+        <div id="next-appt-content"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Forced password-change gate, shown when the yearly password expiry has passed -->
+  <section class="section" id="password-gate-section" style="padding-top:0; display:none;">
+    <div class="wrap">
+      <div class="card" style="border-color:var(--brass);">
+        <h3>Time to update your password</h3>
+        <p style="max-width:50ch;">For your security, passwords expire once a year. Set a new one to keep booking and managing appointments.</p>
+        <div id="gate-banner"></div>
+        <div class="form-row" style="max-width:340px;">
+          <label>New password</label>
+          <div class="password-input-wrap">
+            <input type="password" id="gate-new-password" placeholder="At least 10 characters, incl. a special character" autocomplete="new-password">
+            <button type="button" class="password-toggle-btn" data-target="gate-new-password" aria-label="Show password">👁</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="gate-save-btn">Set new password</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="card">
+        <h3>Preferred barber</h3>
+        <p style="max-width:50ch;">Set who you usually book with — we'll pre-select them whenever you book a new appointment here.</p>
+        <div class="form-row" style="max-width:340px;">
+          <select id="preferred-barber-select"></select>
+        </div>
+        <button class="btn btn-outline" id="save-preferred-btn">Save preference</button>
+        <div id="preferred-banner" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="card">
+        <h3>Change password</h3>
+        <p style="max-width:50ch;">Passwords expire yearly and can't repeat your last 3.</p>
+        <div id="change-password-banner"></div>
+        <div class="form-grid-2" style="max-width:600px;">
+          <div class="form-row">
+            <label>Current password</label>
+            <div class="password-input-wrap">
+              <input type="password" id="cp-current-password" autocomplete="current-password">
+              <button type="button" class="password-toggle-btn" data-target="cp-current-password" aria-label="Show password">👁</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>New password</label>
+            <div class="password-input-wrap">
+              <input type="password" id="cp-new-password" placeholder="At least 10 characters, incl. a special character" autocomplete="new-password">
+              <button type="button" class="password-toggle-btn" data-target="cp-new-password" aria-label="Show password">👁</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline" id="change-password-btn">Update password</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;" id="book-section">
+    <div class="section-head" style="max-width:1100px;margin:0 auto 24px;padding:0 24px;">
+      <div><span class="eyebrow">New booking</span><h2 style="margin:0;">Book an appointment</h2></div>
+    </div>
+    <div class="wrap">
+      <div class="form-row">
+        <label>Barber</label>
+        <select id="acct-barber-select"></select>
+      </div>
+      <div id="acct-book-banner"></div>
+      <div class="form-row">
+        <label>Service</label>
+        <select id="acct-book-service"></select>
+      </div>
+      <div class="form-row">
+        <label>Date</label>
+        <div class="calendar-widget" id="acct-book-calendar"></div>
+      </div>
+      <div class="form-row">
+        <label>Open slots</label>
+        <div class="slot-grid" id="acct-slot-grid"><p style="color:var(--paper-dim)">Pick a barber and date to see open times.</p></div>
+        <div class="slot-legend">
+          <span><span class="legend-dot open"></span>Open</span>
+          <span><span class="legend-dot taken"></span>Booked</span>
+          <span><span class="legend-dot selected"></span>Selected</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="acct-confirm-book">Confirm booking</button>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div><span class="eyebrow">Upcoming &amp; past</span><h2 style="margin:0;">My appointments</h2></div>
+      </div>
+      <div id="my-appointments-list"></div>
+    </div>
+  </section>
+</div>
+
+<footer>SuitesByHeadPoets · Manage your bookings anytime here</footer>
+
+<script src="/js/account.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Management — SuitesByHeadPoets</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="mark">SH</span>SuitesByHeadPoets</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="#" id="logout-link" style="display:none;">Log out</a>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-shell" id="login-shell">
+  <div class="card login-card">
+    <span class="eyebrow">Staff only</span>
+    <h2>Management login</h2>
+    <div id="login-banner"></div>
+    <div class="form-row">
+      <label>Password</label>
+      <div class="password-input-wrap">
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        <button type="button" class="password-toggle-btn" data-target="login-password" aria-label="Show password">👁</button>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" id="login-btn">Log in</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="admin-shell" id="admin-shell" style="display:none;">
+  <div class="admin-side">
+    <button class="tab-btn active" data-tab="walkin">Walk-In Alert</button>
+    <button class="tab-btn" data-tab="barbers">Barbers</button>
+    <button class="tab-btn" data-tab="customers">Customers</button>
+  </div>
+  <div class="admin-main">
+
+    <!-- WALK-IN TAB -->
+    <div class="tab-panel" id="tab-walkin">
+      <div class="section-head"><div><span class="eyebrow">Front desk</span><h2>Walk-in alert</h2></div></div>
+      <div class="walkin-box">
+        <p style="max-width:46ch;margin:0 auto 16px;">A customer just walked in. Send one text to every active barber so whoever's free can grab them.</p>
+        <div class="form-row" style="max-width:420px;margin:0 auto 16px;text-align:left;">
+          <label>Optional note</label>
+          <input type="text" id="walkin-note" placeholder="e.g. asking for a fade, no preference">
+        </div>
+        <button class="btn btn-primary" id="walkin-btn">🚶 Send walk-in alert to all barbers</button>
+      </div>
+      <div id="walkin-banner" style="margin-top:16px;"></div>
+
+      <div class="card" style="margin-top:24px;">
+        <h3>Waiting now</h3>
+        <p style="margin-top:-8px;">Customers who checked themselves in from the home page and haven't been marked done yet.</p>
+        <div class="table-wrap">
+        <table class="table" id="walkin-queue-table">
+          <thead><tr><th>Checked in</th><th>Name</th><th>Phone</th><th>Note</th><th>Claimed by</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:24px;">
+        <h3>Recent walk-in alerts</h3>
+        <div class="table-wrap">
+        <table class="table" id="walkin-log-table">
+          <thead><tr><th>Sent</th><th>Barbers notified</th><th>Note</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARBERS TAB -->
+    <div class="tab-panel" id="tab-barbers" style="display:none;">
+      <div class="toolbar">
+        <div><span class="eyebrow">Roster</span><h2 style="margin:0;">Barbers</h2></div>
+        <button class="btn btn-primary" id="new-barber-btn">+ Add barber</button>
+      </div>
+      <div id="barber-form-card" style="display:none;" class="card">
+        <h3 id="barber-form-title">Add a barber</h3>
+        <form id="barber-form">
+          <input type="hidden" id="barber-id">
+          <div class="photo-preview" id="barber-photo-preview"></div>
+          <div class="form-row">
+            <label>Profile photo</label>
+            <input type="file" id="barber-photo" accept="image/*">
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row"><label>Full name</label><input type="text" id="barber-name" required autocomplete="off"></div>
+            <div class="form-row"><label>Booth number</label><input type="number" id="barber-booth" min="1"></div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row"><label>Mobile number (for SMS)</label><input type="tel" id="barber-phone" required placeholder="+15551234567" autocomplete="off"></div>
+            <div class="form-row"><label>Email (optional)</label><input type="email" id="barber-email" autocomplete="off"></div>
+          </div>
+          <div class="form-row"><label>Specialty</label><input type="text" id="barber-specialty" placeholder="Fades, straight-razor, kids cuts…"></div>
+          <div class="form-row"><label>Bio</label><textarea id="barber-bio" rows="3" placeholder="Shown on their public profile card"></textarea></div>
+          <div class="form-grid-2">
+            <div class="form-row"><label class="label-with-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.7" stroke="currentColor" stroke-width="2"/><circle cx="17.6" cy="6.4" r="1.15" fill="currentColor"/></svg>Instagram (optional)</label><input type="text" id="barber-instagram" placeholder="@handle or full URL"></div>
+            <div class="form-row"><label class="label-with-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Twitter / X (optional)</label><input type="text" id="barber-twitter" placeholder="@handle or full URL"></div>
+          </div>
+
+          <div class="form-row">
+            <label>Weekly availability</label>
+            <div id="avail-editor"></div>
+          </div>
+
+          <div class="form-row">
+            <label>Services &amp; pricing</label>
+            <div id="services-editor"></div>
+            <button type="button" class="btn btn-outline" id="add-service-row" style="margin-top:8px;">+ Add service</button>
+          </div>
+
+          <div class="form-row" id="qr-section" style="display:none;">
+            <label>Payment QR code</label>
+            <p style="margin-top:-4px;">For customer payment (Venmo, CashApp, Zelle, etc.). The barber can also upload this themselves from their portal.</p>
+            <div id="qr-preview-wrap" style="margin-bottom:10px;"></div>
+            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+              <div class="form-row" style="flex:1; min-width:200px; margin-bottom:0;">
+                <input type="file" id="qr-input" accept="image/*">
+              </div>
+              <button type="button" class="btn btn-outline" id="qr-upload-btn">Upload QR code</button>
+            </div>
+            <div id="qr-banner" style="margin-top:10px;"></div>
+          </div>
+
+          <div class="form-row" id="gallery-section" style="display:none;">
+            <label>Haircut gallery</label>
+            <p style="margin-top:-4px;">Photos of this barber's work, shown on their public profile.</p>
+            <div class="gallery-grid" id="gallery-grid"></div>
+            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-top:10px;">
+              <div class="form-row" style="flex:1; min-width:160px; margin-bottom:0;">
+                <label>Add photo(s)</label>
+                <input type="file" id="gallery-photo-input" accept="image/*" multiple>
+              </div>
+              <div class="form-row" style="flex:1; min-width:160px; margin-bottom:0;">
+                <label>Caption (optional)</label>
+                <input type="text" id="gallery-caption-input" placeholder="e.g. Skin fade — applies to all selected photos">
+              </div>
+              <button type="button" class="btn btn-outline" id="gallery-upload-btn">Add to gallery</button>
+            </div>
+            <div id="gallery-banner" style="margin-top:10px;"></div>
+          </div>
+
+          <div style="display:flex; gap:12px;">
+            <button type="submit" class="btn btn-primary">Save barber</button>
+            <button type="button" class="btn btn-outline" id="cancel-barber-form">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="barber-grid" id="admin-barber-grid" style="margin-top:20px;"></div>
+    </div>
+
+    <!-- CUSTOMERS TAB -->
+    <div class="tab-panel" id="tab-customers" style="display:none;">
+      <div class="toolbar">
+        <div><span class="eyebrow">Book</span><h2 style="margin:0;">Customers</h2></div>
+        <button class="btn btn-primary" id="new-customer-btn">+ Add customer</button>
+      </div>
+      <div id="customer-form-card" style="display:none;" class="card">
+        <h3>Add a customer</h3>
+        <form id="customer-form">
+          <div class="form-grid-2">
+            <div class="form-row"><label>Full name</label><input type="text" id="cust-form-name" required autocomplete="off"></div>
+            <div class="form-row"><label>Mobile number</label><input type="tel" id="cust-form-phone" required autocomplete="off"></div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-row"><label>Email (optional)</label><input type="email" id="cust-form-email" autocomplete="off"></div>
+            <div class="form-row"><label>Notes</label><input type="text" id="cust-form-notes" placeholder="Preferences, allergies, etc."></div>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button type="submit" class="btn btn-primary">Save customer</button>
+            <button type="button" class="btn btn-outline" id="cancel-customer-form">Cancel</button>
+          </div>
+        </form>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <div class="table-wrap">
+        <table class="table" id="customers-table">
+          <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Preferred barber</th><th>Notes</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/js/management.js"></script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuitesByHeadPoets — Book a Chair</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="mark">SH</span>SuitesByHeadPoets</a>
+    <div class="nav-links">
+      <a href="#barbers" class="active">Book</a>
+      <span id="auth-status"></span>
+      <a href="/account.html" id="my-account-link">Customer Login</a>
+    </div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-pole"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Ten booths, ten barbers, one shop</span>
+      <h1>Book your barber's<br>booth in seconds.</h1>
+      <p>Every chair here is independently booked. Pick the barber you trust, grab an open slot, and we'll text them the second you're on the books.</p>
+      <div class="hero-actions">
+        <a href="#barbers" class="btn btn-primary">Choose a barber →</a>
+        <button type="button" class="btn btn-walkin btn-lg" id="open-walkin-btn">🚶 I'm a walk-in</button>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num" id="stat-barbers">—</span><span class="label">active booths</span></div>
+      <div class="hero-stat"><span class="num">SMS</span><span class="label">instant booking alerts to your barber</span></div>
+      <div class="hero-stat"><span class="num">1-tap</span><span class="label">walk-in alert to the whole floor</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section styles-section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">What we cut</span>
+        <h2>Styles on the menu</h2>
+      </div>
+      <p style="max-width:34ch;margin:0;">Pricing is set per barber — pick your barber below to see their exact rates.</p>
+    </div>
+    <div class="carousel">
+      <button class="carousel-arrow left" id="style-prev" aria-label="Scroll left">‹</button>
+      <div class="carousel-track" id="style-track">
+
+        <div class="style-card">
+          <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,92 Q48,58 86,92 L86,96 L10,96 Z" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <rect x="38" y="58" width="20" height="18" rx="6" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <circle cx="48" cy="40" r="24" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M22,38 Q48,10 74,38 Q48,32 22,38 Z" fill="var(--brass)"/>
+            <path d="M25,40 Q48,48 71,40" stroke="var(--ink)" stroke-width="1.3" fill="none" opacity="0.4"/>
+            <path d="M28,46 Q48,52 68,46" stroke="var(--ink)" stroke-width="1" fill="none" opacity="0.25"/>
+            <path d="M32,52 Q48,56 64,52" stroke="var(--ink)" stroke-width="0.8" fill="none" opacity="0.15"/>
+          </svg>
+          <div class="style-name">Skin Fade</div>
+        </div>
+
+        <div class="style-card">
+          <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,92 Q48,58 86,92 L86,96 L10,96 Z" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <rect x="38" y="58" width="20" height="18" rx="6" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <circle cx="48" cy="40" r="24" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M22,38 Q48,8 74,38 Q48,30 22,38 Z" fill="var(--brass)"/>
+            <path d="M25,38 Q48,44 71,38" stroke="var(--ink)" stroke-width="1.1" fill="none" opacity="0.28"/>
+            <path d="M29,44 Q48,48 67,44" stroke="var(--ink)" stroke-width="0.9" fill="none" opacity="0.16"/>
+          </svg>
+          <div class="style-name">Taper Fade</div>
+        </div>
+
+        <div class="style-card">
+          <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,92 Q48,58 86,92 L86,96 L10,96 Z" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <rect x="38" y="58" width="20" height="18" rx="6" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <circle cx="48" cy="40" r="24" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M22,38 Q48,4 74,38 Q48,34 22,38 Z" fill="var(--brass)"/>
+            <path d="M30,16 Q48,4 66,16" stroke="var(--brass-dim)" stroke-width="1.6" fill="none"/>
+          </svg>
+          <div class="style-name">Pompadour</div>
+        </div>
+
+        <div class="style-card">
+          <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,92 Q48,58 86,92 L86,96 L10,96 Z" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <rect x="38" y="58" width="20" height="18" rx="6" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <circle cx="48" cy="40" r="24" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M22,38 Q48,18 74,38 Q48,28 22,38 Z" fill="var(--brass)"/>
+            <line x1="20" y1="38" x2="76" y2="38" stroke="var(--ink)" stroke-width="1.8" opacity="0.55"/>
+          </svg>
+          <div class="style-name">Undercut</div>
+        </div>
+
+        <div class="style-card">
+          <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,92 Q48,58 86,92 L86,96 L10,96 Z" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <rect x="38" y="58" width="20" height="18" rx="6" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <circle cx="48" cy="40" r="24" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M22,38 Q48,30 74,38 Q48,35 22,38 Z" fill="var(--brass)"/>
+            <circle cx="34" cy="24" r="0.9" fill="var(--ink)" opacity="0.4"/>
+            <circle cx="44" cy="18" r="0.9" fill="var(--ink)" opacity="0.4"/>
+            <circle cx="54" cy="19" r="0.9" fill="var(--ink)" opacity="0.4"/>
+            <circle cx="62" cy="25" r="0.9" fill="var(--ink)" opacity="0.4"/>
+            <circle cx="48" cy="26" r="0.9" fill="var(--ink)" opacity="0.4"/>
+          </svg>
+          <div class="style-name">Buzz Cut</div>
+        </div>
+
+        <div class="style-card">
+          <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,92 Q48,58 86,92 L86,96 L10,96 Z" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <rect x="38" y="58" width="20" height="18" rx="6" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <circle cx="48" cy="40" r="24" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M22,38 Q48,20 74,38 Q48,33 22,38 Z" fill="var(--brass)"/>
+            <line x1="30" y1="20" x2="66" y2="20" stroke="var(--brass-dim)" stroke-width="1.2" opacity="0.5"/>
+          </svg>
+          <div class="style-name">Crew Cut</div>
+        </div>
+
+        <div class="style-card">
+          <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,92 Q48,58 86,92 L86,96 L10,96 Z" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <rect x="38" y="58" width="20" height="18" rx="6" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <circle cx="48" cy="40" r="24" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M22,38 Q48,14 74,38 Q48,32 22,38 Z" fill="var(--brass)"/>
+            <polyline points="22,34 28,28 34,34 40,27 46,34 52,27 58,34 64,27 70,34 74,31" fill="none" stroke="var(--ink)" stroke-width="1.1" opacity="0.45"/>
+          </svg>
+          <div class="style-name">Textured Crop</div>
+        </div>
+
+        <div class="style-card">
+          <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,92 Q48,58 86,92 L86,96 L10,96 Z" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <rect x="38" y="58" width="20" height="18" rx="6" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <circle cx="48" cy="40" r="24" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M22,38 Q48,30 74,38 Q48,36 22,38 Z" fill="var(--brass)"/>
+            <path d="M30,54 Q48,74 66,54 Q48,60 30,54 Z" fill="var(--brass)"/>
+            <line x1="26" y1="53" x2="70" y2="53" stroke="var(--ink)" stroke-width="1.3" opacity="0.4"/>
+          </svg>
+          <div class="style-name">Beard Sculpt</div>
+        </div>
+
+      </div>
+      <button class="carousel-arrow right" id="style-next" aria-label="Scroll right">›</button>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="barbers">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Step 1</span>
+        <h2>Pick your barber</h2>
+      </div>
+      <p style="max-width:32ch;margin:0;">Tap a barber to see their open hours and grab a slot.</p>
+    </div>
+    <div class="barber-grid" id="barber-grid">
+      <p>Loading barbers…</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="book" style="border-top:1px solid var(--line); display:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Step 2</span>
+        <h2 id="book-heading">Grab a time</h2>
+      </div>
+      <button class="btn btn-outline" id="change-barber">Change barber</button>
+    </div>
+
+    <div id="book-banner"></div>
+
+    <!-- Shown when nobody is signed in — booking a scheduled appointment requires an account. -->
+    <div id="book-login-required" class="card" style="display:none;">
+      <h3 style="margin-top:0;">Sign in to book this appointment</h3>
+      <p style="max-width:48ch;">You can browse every barber's profile freely, but booking a scheduled time needs an account so you can view, reschedule, or cancel it later.</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn btn-primary" id="book-signin-link" href="/account.html">Sign in</a>
+        <a class="btn btn-outline" id="book-signup-link" href="/account.html">Create account</a>
+      </div>
+      <p style="margin-bottom:0; color:var(--paper-dim); font-size:0.85rem;">New here? Creating an account only takes a minute — we just text you a code to verify your number.</p>
+    </div>
+
+    <!-- Shown once signed in -->
+    <div id="book-authenticated-panel" style="display:none;">
+      <div class="banner info" id="booking-as-banner" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;"></div>
+
+      <div class="form-row">
+        <label>Service</label>
+        <select id="book-service"></select>
+      </div>
+
+      <div class="form-row">
+        <label>Date</label>
+        <div class="calendar-widget" id="book-calendar"></div>
+      </div>
+
+      <div class="form-row">
+        <label>Open slots</label>
+        <div class="slot-grid" id="slot-grid"><p style="color:var(--paper-dim)">Pick a date to see open times.</p></div>
+        <div class="slot-legend">
+          <span><span class="legend-dot open"></span>Open</span>
+          <span><span class="legend-dot taken"></span>Booked</span>
+          <span><span class="legend-dot selected"></span>Selected</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="confirm-book">Confirm booking</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  SuitesByHeadPoets · Booth rental shop management by the front desk
+  <div style="margin-top:6px;">
+    <a href="/barber-portal.html" style="color:inherit;opacity:0.6;">Barber login</a>
+    &nbsp;·&nbsp;
+    <a href="/management.html" style="color:inherit;opacity:0.6;">Staff login</a>
+  </div>
+</footer>
+
+<!-- WALK-IN CHECK-IN MODAL -->
+<div class="modal-overlay" id="walkin-modal-overlay" style="display:none;">
+  <div class="card modal-card">
+    <button type="button" class="modal-close" id="close-walkin-btn" aria-label="Close">×</button>
+    <span class="eyebrow">Walk-in</span>
+    <h2 style="margin-top:4px;">Check in for a haircut</h2>
+    <p style="max-width:44ch;">No appointment needed. Add your name and number and we'll text every barber that you're here — first one free will grab you.</p>
+    <div id="walkin-banner"></div>
+    <div class="form-row">
+      <label>Name</label>
+      <input type="text" id="walkin-name" placeholder="Jordan Lee">
+    </div>
+    <div class="form-row">
+      <label>Mobile number</label>
+      <input type="tel" id="walkin-phone" placeholder="(555) 123-4567">
+    </div>
+    <div class="form-row">
+      <label>Optional note</label>
+      <input type="text" id="walkin-note" placeholder="e.g. asking for a fade, no preference">
+    </div>
+    <div class="form-row">
+      <label style="display:flex; align-items:flex-start; gap:8px; font-weight:400;">
+        <input type="checkbox" id="walkin-sms-consent" style="margin-top:3px;">
+        <span>I agree to receive a text about my place in line from SuitesByHeadPoets at this number. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. See our <a href="/privacy.html" target="_blank" style="color:inherit; text-decoration:underline;">SMS &amp; privacy terms</a>.</span>
+      </label>
+    </div>
+    <button class="btn btn-primary btn-block" id="submit-walkin-btn">Check me in</button>
+  </div>
+</div>
+
+<!-- BARBER PROFILE MODAL -->
+<div class="modal-overlay" id="barber-profile-modal-overlay" style="display:none;">
+  <div class="card modal-card modal-card-wide">
+    <button type="button" class="modal-close" id="close-barber-profile-btn" aria-label="Close">×</button>
+    <div id="barber-profile-modal-body"></div>
+  </div>
+</div>
+
+<script src="/js/booking.js"></script>
+</body>
+</html>
