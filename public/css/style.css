@@ -138,41 +138,6 @@ p { margin: 0 0 1em; color: var(--paper-dim); }
   position: relative;
   overflow: hidden;
 }
-/* Large decorative barber pole in the hero corner — a rounded capsule with
-   diagonal red/white/blue bands whose background-position animates
-   horizontally, the standard CSS trick that reads as the pole spinning. */
-.hero-pole {
-  position: absolute;
-  top: 24px; right: 40px;
-  width: 60px; height: 380px;
-  border-radius: 30px;
-  overflow: hidden;
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--brick) 0 16px,
-    var(--paper) 16px 32px,
-    var(--steel) 32px 48px
-  );
-  box-shadow: inset 0 0 18px rgba(0,0,0,0.55);
-  opacity: 0.2;
-  animation: hero-pole-spin 2.4s linear infinite;
-  pointer-events: none;
-}
-.hero-pole::before,
-.hero-pole::after {
-  content: '';
-  position: absolute;
-  left: -10px; right: -10px;
-  height: 22px;
-  background: linear-gradient(180deg, #d8dce0, #8f949a);
-  border-radius: 6px;
-}
-.hero-pole::before { top: -11px; }
-.hero-pole::after { bottom: -11px; }
-@keyframes hero-pole-spin {
-  from { background-position: 0 0; }
-  to { background-position: 68px 0; }
-}
 .hero-grid {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
@@ -873,7 +838,6 @@ footer {
 @media (max-width: 860px) {
   .hero-grid { grid-template-columns: 1fr; }
   .hero-stats { border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 20px; }
-  .hero-pole { display: none; }
   .form-grid-2 { grid-template-columns: 1fr; }
   .admin-shell { grid-template-columns: 1fr; }
   .admin-side { display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--line); padding: 8px; }
@@ -951,5 +915,4 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; scroll-behavior: auto !important; }
-  .hero-pole { animation: none !important; }
 }
