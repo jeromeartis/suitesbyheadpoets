@@ -1,7 +1,12 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
-const db = new Database(path.join(__dirname, 'data', 'shop.db'));
+// DB_PATH lets the host point the SQLite file at a persistent volume (e.g. a
+// Render disk mounted at /var/data). Falls back to the in-repo data/ dir locally.
+const dbFile = process.env.DB_PATH || path.join(__dirname, 'data', 'shop.db');
+fs.mkdirSync(path.dirname(dbFile), { recursive: true });
+const db = new Database(dbFile);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
