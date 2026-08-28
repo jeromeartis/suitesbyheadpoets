@@ -23,6 +23,10 @@ const SHOP_NAME = process.env.SHOP_NAME || 'SuitesByHeadPoets';
 const STAFF_SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 12; // 12 hours
 const CUSTOMER_SESSION_MAX_AGE_MS = 1000 * 60 * 30; // 30 minutes
 
+// Behind Render's (or any) HTTPS-terminating proxy, so req.protocol / req.secure
+// reflect the original scheme and the session cookie can be marked secure.
+app.set('trust proxy', 1);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,7 +35,9 @@ app.use(
     secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: STAFF_SESSION_MAX_AGE_MS }
+    // 'auto' = secure only when the request came in over HTTPS, so local http dev
+    // still works while production cookies get the Secure flag.
+    cookie: { maxAge: STAFF_SESSION_MAX_AGE_MS, secure: 'auto', sameSite: 'lax' }
   })
 );
 
