@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /barber-portal.html
+Disallow: /barber-signup.html
+Disallow: /management.html
+Disallow: /manage.html
+Disallow: /api/
+
+Sitemap: https://suitesbyheadpoets.com/sitemap.xml
