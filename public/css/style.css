@@ -319,30 +319,45 @@ p { margin: 0 0 1em; color: var(--paper-dim); }
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding-top: 26px;
   transition: border-color .15s, transform .15s;
 }
 .barber-card:hover { border-color: var(--brass-dim); transform: translateY(-2px); }
-.barber-photo {
-  aspect-ratio: 3/2;
-  background: var(--panel-raised) center/cover no-repeat;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding: 12px;
-  position: relative;
+.barber-card:hover .barber-photo {
+  box-shadow: 0 0 0 4px var(--brass), 0 0 0 10px rgba(201,162,92,0.16), 0 14px 30px rgba(0,0,0,0.45);
 }
-.barber-photo .booth-tag { position: absolute; top: 12px; left: 12px; }
+/* Oval portrait avatar — taller than wide, flatters a head-and-shoulders photo */
+.barber-photo {
+  width: 152px;
+  height: 186px;
+  border-radius: 50%;
+  background: var(--panel-raised) center/cover no-repeat;
+  position: relative;
+  cursor: pointer;
+  border: 3px solid var(--brass-dim);
+  box-shadow: 0 0 0 4px var(--brass-dim), 0 0 0 9px rgba(201,162,92,0.10), 0 10px 24px rgba(0,0,0,0.38);
+  transition: box-shadow .18s ease;
+}
+.barber-photo .booth-tag {
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
 .barber-photo .no-photo {
   position: absolute; inset: 0;
   display: grid; place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, var(--panel-raised), var(--ink));
   font-family: var(--display);
-  font-size: 3rem;
-  color: var(--line);
+  font-size: 3.4rem;
+  color: var(--brass-dim);
 }
-.barber-body { padding: 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.barber-body { padding: 34px 18px 18px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; flex: 1; width: 100%; }
 .barber-body h3 { margin: 0; }
 .barber-specialty { color: var(--brass); font-size: 0.8rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; }
 .barber-bio { font-size: 0.88rem; flex: 1; }
@@ -898,6 +913,8 @@ footer {
   .service-row .remove-service { grid-area: remove; align-self: center; }
 
   .barber-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .barber-photo { width: 118px; height: 144px; }
+  .barber-body { padding: 30px 10px 14px; }
   .form-grid-2 { gap: 12px; }
 }
 

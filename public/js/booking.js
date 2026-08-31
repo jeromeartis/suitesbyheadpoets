@@ -143,11 +143,11 @@ function openBarberProfile(id) {
     </a>` : '';
 
   document.getElementById('barber-profile-modal-body').innerHTML = `
-    <div class="barber-photo" style="${b.photo ? `background-image:url('${b.photo}');` : ''} height:230px;aspect-ratio:auto;border-radius:var(--radius);margin-bottom:16px;">
+    <div class="barber-photo" style="${b.photo ? `background-image:url('${b.photo}');` : ''} width:196px;height:238px;margin:6px auto 28px;">
       ${!b.photo ? `<div class="no-photo">${escapeHtml(b.name.charAt(0))}</div>` : ''}
       <span class="booth-tag">BOOTH ${b.booth_number || '—'}</span>
     </div>
-    <h2 style="margin:0 0 4px;">${escapeHtml(b.name)}</h2>
+    <h2 style="margin:0 0 4px; text-align:center;">${escapeHtml(b.name)}</h2>
     ${b.specialty ? `<div class="barber-specialty">${escapeHtml(b.specialty)}</div>` : ''}
     ${socialsHtml}
     <p class="barber-bio">${escapeHtml(b.bio || 'No bio yet.')}</p>
