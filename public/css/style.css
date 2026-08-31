@@ -22,7 +22,7 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 body {
   margin: 0;
@@ -480,7 +480,7 @@ p { margin: 0 0 1em; color: var(--paper-dim); }
 }
 .password-toggle-btn:hover { color: var(--paper); }
 
-.form-row input, .form-row select, .form-row textarea {
+.form-row input:not([type="checkbox"]):not([type="radio"]), .form-row select, .form-row textarea {
   width: 100%;
   background: var(--ink);
   border: 1px solid var(--line);
@@ -495,6 +495,35 @@ p { margin: 0 0 1em; color: var(--paper-dim); }
   border-color: var(--brass);
 }
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Checkboxes: fixed small size, never stretched by the width:100% rule above,
+   and don't get the uppercase-mono label treatment. */
+input[type="checkbox"], input[type="radio"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  min-height: 0;
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: var(--brass);
+}
+/* A checkbox + wrapping explanatory text, e.g. the SMS opt-in on sign-up.
+   Compound selector so it beats `.form-row label` on specificity. */
+.checkbox-row,
+.form-row label.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-family: var(--body);
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.45;
+  color: var(--paper-dim);
+  margin-bottom: 6px;
+}
+.checkbox-row span { flex: 1; min-width: 0; }
+.checkbox-row input[type="checkbox"] { margin-top: 2px; }
 
 .calendar-widget {
   border: 1px solid var(--line);
@@ -719,7 +748,7 @@ footer {
   place-items: center;
   padding: 20px;
 }
-.login-card { width: 340px; }
+.login-card { width: 100%; max-width: 340px; }
 
 .auth-tabs {
   display: flex;
@@ -925,7 +954,8 @@ footer {
 
 /* ---------- touch targets ---------- */
 @media (pointer: coarse) {
-  .btn, .slot, .day-chip, .admin-side button, input, select, textarea {
+  .btn, .slot, .day-chip, .admin-side button,
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea {
     min-height: 40px;
   }
   .slot { min-height: 44px; display: flex; align-items: center; justify-content: center; }

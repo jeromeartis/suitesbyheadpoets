@@ -87,8 +87,8 @@
           <input type="tel" id="signup-phone" placeholder="(555) 123-4567" autocomplete="tel">
         </div>
         <div class="form-row">
-          <label style="display:flex; align-items:flex-start; gap:8px; font-weight:400;">
-            <input type="checkbox" id="signup-sms-consent" style="margin-top:3px;">
+          <label class="checkbox-row">
+            <input type="checkbox" id="signup-sms-consent">
             <span><strong>Optional:</strong> text me appointment confirmations, reminders, and changes at this number. You don't need to agree to this to create an account or book. Msg &amp; data rates may apply, message frequency varies. Reply STOP to opt out, HELP for help. See our <a href="/privacy.html" target="_blank" style="color:inherit; text-decoration:underline;">SMS &amp; privacy terms</a>.</span>
           </label>
         </div>
@@ -186,7 +186,7 @@
       <div class="card">
         <h3>Text notifications</h3>
         <p style="max-width:50ch;">Optional. When on, we text you appointment confirmations, day-before reminders, and changes at your number on file. Turn it off any time — you'll still see everything here in your account. Msg &amp; data rates may apply; reply STOP to any text to opt out.</p>
-        <label style="display:flex; align-items:center; gap:10px; font-weight:400; cursor:pointer;">
+        <label class="checkbox-row" style="align-items:center; cursor:pointer;">
           <input type="checkbox" id="sms-consent-toggle">
           <span>Text me about my appointments</span>
         </label>
