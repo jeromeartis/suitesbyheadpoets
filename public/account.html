@@ -184,6 +184,20 @@
   <section class="section" style="padding-top:0;">
     <div class="wrap">
       <div class="card">
+        <h3>Text notifications</h3>
+        <p style="max-width:50ch;">Optional. When on, we text you appointment confirmations, day-before reminders, and changes at your number on file. Turn it off any time — you'll still see everything here in your account. Msg &amp; data rates may apply; reply STOP to any text to opt out.</p>
+        <label style="display:flex; align-items:center; gap:10px; font-weight:400; cursor:pointer;">
+          <input type="checkbox" id="sms-consent-toggle">
+          <span>Text me about my appointments</span>
+        </label>
+        <div id="sms-consent-banner" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="card">
         <h3>Change password</h3>
         <p style="max-width:50ch;">Passwords expire yearly and can't repeat your last 3.</p>
         <div id="change-password-banner"></div>

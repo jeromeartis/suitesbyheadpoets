@@ -903,6 +903,15 @@ app.put('/api/customer/me', requireCustomerAuth, blockIfPasswordExpired, (req, r
   res.json(db.prepare('SELECT * FROM customers WHERE id = ?').get(req.session.customerId));
 });
 
+// Turn appointment texts (confirmations, reminders) on or off. Opt-in is always
+// optional, so this can be toggled freely from the account page.
+app.put('/api/customer/me/sms-consent', requireCustomerAuth, (req, res) => {
+  const consent = req.body.sms_consent === true || req.body.sms_consent === 'true' || req.body.sms_consent === 1;
+  db.prepare('UPDATE customers SET sms_consent = ?, sms_consent_at = ? WHERE id = ?')
+    .run(consent ? 1 : 0, consent ? new Date().toISOString() : null, req.session.customerId);
+  res.json(db.prepare('SELECT * FROM customers WHERE id = ?').get(req.session.customerId));
+});
+
 // Logged-in customer's own appointments, soonest first
 app.get('/api/customer/appointments', requireCustomerAuth, (req, res) => {
   const rows = db.prepare(`

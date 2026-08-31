@@ -318,6 +318,8 @@ async function showAccount(passwordExpired) {
   document.getElementById('welcome-heading').textContent = `Welcome back, ${firstName(currentCustomer.name)}`;
   document.getElementById('password-gate-section').style.display = passwordExpired ? 'block' : 'none';
 
+  document.getElementById('sms-consent-toggle').checked = currentCustomer.sms_consent === 1;
+
   await loadBarbers();
   renderPreferredSelect();
   renderBookingBarberSelect();
@@ -413,6 +415,26 @@ function renderPreferredSelect() {
     `<option value="${b.id}" ${currentCustomer.preferred_barber_id === b.id ? 'selected' : ''}>${escapeHtml(b.name)} — Booth ${b.booth_number || '—'}</option>`
   ).join('');
 }
+
+document.getElementById('sms-consent-toggle').addEventListener('change', async (e) => {
+  const banner = document.getElementById('sms-consent-banner');
+  const wanted = e.target.checked;
+  e.target.disabled = true;
+  try {
+    const res = await fetch('/api/customer/me/sms-consent', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sms_consent: wanted })
+    });
+    if (!res.ok) throw new Error();
+    currentCustomer = await res.json();
+    banner.innerHTML = `<div class="banner success">${wanted ? "Text notifications are on." : "Text notifications are off."}</div>`;
+  } catch {
+    e.target.checked = !wanted; // revert the toggle
+    banner.innerHTML = `<div class="banner error">Could not save that. Try again.</div>`;
+  } finally {
+    e.target.disabled = false;
+  }
+});
 
 document.getElementById('save-preferred-btn').addEventListener('click', async () => {
   const banner = document.getElementById('preferred-banner');
