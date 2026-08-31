@@ -16,6 +16,27 @@ const { sendAppointmentReminders } = require('./reminders');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const SHOP_NAME = process.env.SHOP_NAME || 'SuitesByHeadPoets';
+// The shop runs on one wall-clock timezone regardless of where the server is
+// hosted (Render defaults to UTC). Used to reject bookings for times that have
+// already passed. Override with SHOP_TZ if the shop ever relocates.
+const SHOP_TZ = process.env.SHOP_TZ || 'America/New_York';
+
+// "YYYY-MM-DD HH:MM" for right now, in the shop's timezone. Lets us compare a
+// booking's naive date+time strings against the current moment without pulling
+// in a date library.
+function shopNowStamp() {
+  const p = new Intl.DateTimeFormat('en-CA', {
+    timeZone: SHOP_TZ, hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+  }).formatToParts(new Date()).reduce((o, x) => (o[x.type] = x.value, o), {});
+  const hour = p.hour === '24' ? '00' : p.hour; // some engines emit 24 for midnight
+  return `${p.year}-${p.month}-${p.day} ${hour}:${p.minute}`;
+}
+
+// True if appt_date (YYYY-MM-DD) + appt_time (HH:MM) is in the past, shop-local.
+function isPastDateTime(appt_date, appt_time) {
+  return `${appt_date} ${appt_time}` <= shopNowStamp();
+}
 
 // Staff and barbers share one 12-hour session window. Customers get a shorter one
 // (see CUSTOMER_SESSION_MAX_AGE_MS) — set explicitly at every login point below,
@@ -544,6 +565,10 @@ app.get('/api/barbers/:id/appointments', (req, res) => {
 // Shared overlap/hours check used by both new bookings and reschedules.
 // Returns an error string, or null if the slot is clear.
 function checkSlotAvailable({ barber, appt_date, appt_time, duration_minutes, excludeAppointmentId }) {
+  if (isPastDateTime(appt_date, appt_time)) {
+    return 'That time has already passed. Please pick a later slot.';
+  }
+
   const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][
     new Date(appt_date + 'T00:00:00').getDay()
   ];

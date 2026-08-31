@@ -572,6 +572,7 @@ p { margin: 0 0 1em; color: var(--paper-dim); }
 }
 .slot:hover { border-color: var(--brass); }
 .slot.taken { opacity: 0.3; text-decoration: line-through; cursor: not-allowed; pointer-events: none; }
+.slot.past { opacity: 0.32; cursor: not-allowed; pointer-events: none; background: var(--panel); }
 .slot.selected { background: var(--brass); color: var(--ink); border-color: var(--brass); font-weight: 700; }
 
 .slot-legend {

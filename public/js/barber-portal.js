@@ -48,6 +48,12 @@ function slotIsAvailable(slotStart, durationMinutes, closeTime, booked) {
     return start < bEnd && bStart < end;
   });
 }
+// True if a slot on `dateStr` (YYYY-MM-DD) at `slotStart` (HH:MM) has already
+// passed — so today's earlier open slots show grayed out, not bookable.
+function slotIsPast(dateStr, slotStart) {
+  if (!dateStr) return false;
+  return new Date(`${dateStr}T${slotStart}:00`).getTime() <= Date.now();
+}
 function selectedServiceDuration(selectEl) {
   const opt = selectEl.options[selectEl.selectedIndex];
   const d = opt ? parseInt(opt.dataset.duration, 10) : NaN;
@@ -689,9 +695,10 @@ function openPortalReschedulePanel(apptId) {
     const slots = generateSlots(avail.start, avail.end, 30);
     slotGrid.innerHTML = slots.map((s) => {
       const isTaken = !slotIsAvailable(s, duration, avail.end, taken);
-      return `<div class="slot ${isTaken ? 'taken' : ''}" data-time="${s}">${to12h(s)}</div>`;
+      const isPast = slotIsPast(date, s);
+      return `<div class="slot ${isTaken ? 'taken' : ''} ${isPast ? 'past' : ''}" data-time="${s}">${to12h(s)}</div>`;
     }).join('') || `<p style="color:var(--paper-dim)">No slots open that day.</p>`;
-    slotGrid.querySelectorAll('.slot:not(.taken)').forEach((el) => {
+    slotGrid.querySelectorAll('.slot:not(.taken):not(.past)').forEach((el) => {
       el.addEventListener('click', () => {
         slotGrid.querySelectorAll('.slot').forEach((s) => s.classList.remove('selected'));
         el.classList.add('selected');
@@ -887,10 +894,11 @@ async function renderPbSlots() {
 
   slotGrid.innerHTML = slots.map((s) => {
     const isTaken = !slotIsAvailable(s, duration, avail.end, taken);
-    return `<div class="slot ${isTaken ? 'taken' : ''}" data-time="${s}">${to12h(s)}</div>`;
+    const isPast = slotIsPast(date, s);
+    return `<div class="slot ${isTaken ? 'taken' : ''} ${isPast ? 'past' : ''}" data-time="${s}">${to12h(s)}</div>`;
   }).join('') || `<p style="color:var(--paper-dim)">No slots fit that service on this day. Try another date.</p>`;
 
-  slotGrid.querySelectorAll('.slot:not(.taken)').forEach((el) => {
+  slotGrid.querySelectorAll('.slot:not(.taken):not(.past)').forEach((el) => {
     el.addEventListener('click', () => {
       slotGrid.querySelectorAll('.slot').forEach((s) => s.classList.remove('selected'));
       el.classList.add('selected');
@@ -1091,10 +1099,11 @@ async function renderRecurSlots() {
 
   slotGrid.innerHTML = slots.map((s) => {
     const isTaken = !slotIsAvailable(s, duration, avail.end, taken);
-    return `<div class="slot ${isTaken ? 'taken' : ''}" data-time="${s}">${to12h(s)}</div>`;
+    const isPast = slotIsPast(date, s);
+    return `<div class="slot ${isTaken ? 'taken' : ''} ${isPast ? 'past' : ''}" data-time="${s}">${to12h(s)}</div>`;
   }).join('') || `<p style="color:var(--paper-dim)">No slots fit that service on this day. Try another date.</p>`;
 
-  slotGrid.querySelectorAll('.slot:not(.taken)').forEach((el) => {
+  slotGrid.querySelectorAll('.slot:not(.taken):not(.past)').forEach((el) => {
     el.addEventListener('click', () => {
       slotGrid.querySelectorAll('.slot').forEach((s) => s.classList.remove('selected'));
       el.classList.add('selected');

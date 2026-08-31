@@ -323,14 +323,15 @@ async function renderSlotsForDate() {
 
   slotGrid.innerHTML = slots.map((s) => {
     const taken = !slotIsAvailable(s, duration, avail.end, booked);
-    return `<div class="slot ${taken ? 'taken' : ''}" data-time="${s}">${to12h(s)}</div>`;
+    const past = slotIsPast(selectedDate, s);
+    return `<div class="slot ${taken ? 'taken' : ''} ${past ? 'past' : ''}" data-time="${s}">${to12h(s)}</div>`;
   }).join('') || `<p style="color:var(--paper-dim)">No slots fit that service on this day. Try another date.</p>`;
 
-  if (slots.every((s) => !slotIsAvailable(s, duration, avail.end, booked))) {
-    slotGrid.insertAdjacentHTML('beforeend', `<p style="color:var(--paper-dim);grid-column:1/-1;margin:8px 0 0;">Fully booked for this service on this day — try another date.</p>`);
+  if (slots.every((s) => !slotIsAvailable(s, duration, avail.end, booked) || slotIsPast(selectedDate, s))) {
+    slotGrid.insertAdjacentHTML('beforeend', `<p style="color:var(--paper-dim);grid-column:1/-1;margin:8px 0 0;">No open times left for this service on this day — try another date.</p>`);
   }
 
-  slotGrid.querySelectorAll('.slot:not(.taken)').forEach((el) => {
+  slotGrid.querySelectorAll('.slot:not(.taken):not(.past)').forEach((el) => {
     el.addEventListener('click', () => {
       slotGrid.querySelectorAll('.slot').forEach((s) => s.classList.remove('selected'));
       el.classList.add('selected');
@@ -367,6 +368,12 @@ function slotIsAvailable(slotStart, durationMinutes, closeTime, booked) {
     const bEnd = bStart + (b.duration_minutes || 30);
     return start < bEnd && bStart < end;
   });
+}
+
+// True once a slot's start time on `dateStr` (YYYY-MM-DD) has passed.
+function slotIsPast(dateStr, slotStart) {
+  if (!dateStr) return false;
+  return new Date(`${dateStr}T${slotStart}:00`).getTime() <= Date.now();
 }
 
 function selectedServiceDuration(selectEl) {
