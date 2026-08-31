@@ -143,7 +143,7 @@ function openBarberProfile(id) {
     </a>` : '';
 
   document.getElementById('barber-profile-modal-body').innerHTML = `
-    <div class="barber-photo" style="${b.photo ? `background-image:url('${b.photo}');` : ''} width:196px;height:238px;margin:6px auto 28px;">
+    <div class="barber-photo" style="${b.photo ? `background-image:url('${b.photo}');` : ''} width:196px;height:238px;margin:2px auto 22px;">
       ${!b.photo ? `<div class="no-photo">${escapeHtml(b.name.charAt(0))}</div>` : ''}
       <span class="booth-tag">BOOTH ${b.booth_number || '—'}</span>
     </div>
