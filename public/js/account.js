@@ -228,6 +228,43 @@ document.getElementById('forgot-reset-btn').addEventListener('click', async () =
 // --- sign up ---
 document.getElementById('signup-confirm-password').addEventListener('input', (e) => e.target.classList.remove('field-error'));
 
+// The main button on the details step does one of two things depending on
+// whether the customer opted in to texts: with consent it sends a verification
+// code (they're getting texts anyway, so we confirm the number); without
+// consent it creates the account immediately — no SMS involved at all.
+const signupConsentBox = document.getElementById('signup-sms-consent');
+function syncSignupButtonLabel() {
+  document.getElementById('signup-send-code-btn').textContent =
+    signupConsentBox.checked ? 'Send verification code' : 'Create account';
+}
+signupConsentBox.addEventListener('change', syncSignupButtonLabel);
+syncSignupButtonLabel();
+
+function readSignupFields() {
+  return {
+    name: document.getElementById('signup-name').value.trim(),
+    phone: document.getElementById('signup-phone').value.trim(),
+    email: document.getElementById('signup-email').value.trim(),
+    password: document.getElementById('signup-password').value,
+    preferred_barber_id: document.getElementById('signup-preferred-barber').value || null,
+    sms_consent: signupConsentBox.checked
+  };
+}
+
+async function submitSignup(code) {
+  const banner = document.getElementById('login-banner');
+  const fields = readSignupFields();
+  const res = await fetch('/api/customer/signup', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...fields, code })
+  });
+  const data = await res.json();
+  if (!res.ok) { banner.innerHTML = `<div class="banner error">${escapeHtml(data.error)}</div>`; return false; }
+  currentCustomer = data.customer;
+  showAccount(false);
+  return true;
+}
+
 document.getElementById('signup-send-code-btn').addEventListener('click', async () => {
   const name = document.getElementById('signup-name').value.trim();
   const phone = document.getElementById('signup-phone').value.trim();
@@ -235,6 +272,7 @@ document.getElementById('signup-send-code-btn').addEventListener('click', async 
   const confirmField = document.getElementById('signup-confirm-password');
   const confirmPassword = confirmField.value;
   const banner = document.getElementById('login-banner');
+  const wantsSms = signupConsentBox.checked;
   confirmField.classList.remove('field-error');
   if (!name || !phone || !password) { banner.innerHTML = `<div class="banner error">Name, phone, and password are required.</div>`; return; }
   const strengthError = passwordStrengthError(password);
@@ -246,8 +284,12 @@ document.getElementById('signup-send-code-btn').addEventListener('click', async 
   }
 
   const btn = document.getElementById('signup-send-code-btn');
-  btn.disabled = true; btn.textContent = 'Sending…';
+  btn.disabled = true; btn.textContent = wantsSms ? 'Sending…' : 'Creating account…';
   try {
+    if (!wantsSms) {
+      await submitSignup(undefined);
+      return;
+    }
     const res = await fetch('/api/customer/request-otp', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone })
     });
@@ -261,7 +303,7 @@ document.getElementById('signup-send-code-btn').addEventListener('click', async 
   } catch (err) {
     banner.innerHTML = `<div class="banner error">${escapeHtml(err.message)}</div>`;
   } finally {
-    btn.disabled = false; btn.textContent = 'Send verification code';
+    btn.disabled = false; syncSignupButtonLabel();
   }
 });
 document.getElementById('signup-back-btn').addEventListener('click', () => {
@@ -270,26 +312,11 @@ document.getElementById('signup-back-btn').addEventListener('click', () => {
   document.getElementById('signup-code').value = '';
 });
 document.getElementById('signup-verify-btn').addEventListener('click', async () => {
-  const name = document.getElementById('signup-name').value.trim();
-  const phone = document.getElementById('signup-phone').value.trim();
-  const email = document.getElementById('signup-email').value.trim();
-  const password = document.getElementById('signup-password').value;
-  const preferred_barber_id = document.getElementById('signup-preferred-barber').value || null;
   const code = document.getElementById('signup-code').value.trim();
-  const sms_consent = document.getElementById('signup-sms-consent').checked;
-  const banner = document.getElementById('login-banner');
-
   const btn = document.getElementById('signup-verify-btn');
   btn.disabled = true; btn.textContent = 'Creating account…';
   try {
-    const res = await fetch('/api/customer/signup', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, email, password, preferred_barber_id, code, sms_consent })
-    });
-    const data = await res.json();
-    if (!res.ok) { banner.innerHTML = `<div class="banner error">${escapeHtml(data.error)}</div>`; return; }
-    currentCustomer = data.customer;
-    showAccount(false);
+    await submitSignup(code);
   } finally {
     btn.disabled = false; btn.textContent = 'Verify & create account';
   }

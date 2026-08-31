@@ -157,6 +157,10 @@ safeAlter(`ALTER TABLE customers ADD COLUMN last_login_at TEXT`);
 // because the user requests it. 0 = no consent on file.
 safeAlter(`ALTER TABLE customers ADD COLUMN sms_consent INTEGER NOT NULL DEFAULT 0`);
 safeAlter(`ALTER TABLE customers ADD COLUMN sms_consent_at TEXT`);
+// Whether the phone number was confirmed via a texted code. Only customers who
+// opt in to texts go through verification; skipping it lets someone sign up
+// without receiving any SMS at all.
+safeAlter(`ALTER TABLE customers ADD COLUMN phone_verified INTEGER NOT NULL DEFAULT 0`);
 
 // Default weekly availability template used when a barber is created without one
 const DEFAULT_AVAILABILITY = {

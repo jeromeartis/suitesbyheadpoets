@@ -89,7 +89,13 @@
         <div class="form-row">
           <label class="checkbox-row">
             <input type="checkbox" id="signup-sms-consent">
-            <span><strong>Optional:</strong> text me appointment confirmations, reminders, and changes at this number. You don't need to agree to this to create an account or book. Msg &amp; data rates may apply, message frequency varies. Reply STOP to opt out, HELP for help. See our <a href="/privacy.html" target="_blank" style="color:inherit; text-decoration:underline;">SMS &amp; privacy terms</a>.</span>
+            <span><strong>Optional — you can create an account and book without checking this box.</strong>
+            Check here to receive appointment text messages from SuitesByHeadPoets at this number:
+            booking confirmations, appointment reminders, and appointment changes. Message frequency
+            varies (typically 2–5 messages per appointment). Msg &amp; data rates may apply.
+            Reply STOP to cancel, HELP for help. See our
+            <a href="/terms.html" target="_blank" style="color:inherit; text-decoration:underline;">SMS Terms</a>
+            and <a href="/privacy.html" target="_blank" style="color:inherit; text-decoration:underline;">Privacy Policy</a>.</span>
           </label>
         </div>
         <div class="form-row">
@@ -114,8 +120,8 @@
             <button type="button" class="password-toggle-btn" data-target="signup-confirm-password" aria-label="Show password">👁</button>
           </div>
         </div>
-        <button class="btn btn-primary btn-block" id="signup-send-code-btn">Send verification code</button>
-        <p style="font-size:0.8rem; color:#666; margin-top:8px; margin-bottom:0;">We'll text a one-time 6-digit code to this number to verify it's yours. Standard message and data rates may apply.</p>
+        <button class="btn btn-primary btn-block" id="signup-send-code-btn">Create account</button>
+        <p style="font-size:0.8rem; color:var(--paper-dim); margin-top:8px; margin-bottom:0;">If you opt in to texts above, we'll first send a one-time code to confirm your number. Otherwise your account is created right away — no text messages.</p>
       </div>
       <div id="signup-code-step" style="display:none;">
         <p style="margin-top:0;">We texted a 6-digit code to <span id="signup-code-phone-display"></span>.</p>

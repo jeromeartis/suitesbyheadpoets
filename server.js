@@ -775,13 +775,15 @@ app.post('/api/customer/request-otp', async (req, res) => {
   res.json({ ok: true, sms: smsResult, devCode });
 });
 
-// Create a new customer account. Requires a code from /request-otp to prove phone ownership.
-// If a guest booking already created this phone number as a customer (no password set),
-// signup "claims" that record instead of erroring, so their appointment history isn't lost.
+// Create a new customer account. Phone verification (a texted code) is only
+// required when the customer opts in to appointment texts — that way someone can
+// sign up and use the site without ever receiving an SMS. If a guest booking
+// already created this phone number (no password set), signup "claims" that
+// record instead of erroring, so their appointment history isn't lost.
 app.post('/api/customer/signup', (req, res) => {
   const { name, phone, code, password, email, preferred_barber_id } = req.body;
-  if (!name || !phone || !code || !password) {
-    return res.status(400).json({ error: 'Name, phone, code, and password are required.' });
+  if (!name || !phone || !password) {
+    return res.status(400).json({ error: 'Name, phone, and password are required.' });
   }
   // Opt-in to ongoing appointment texts is optional — never a condition of signup.
   const smsConsent = req.body.sms_consent === true || req.body.sms_consent === 'true' || req.body.sms_consent === 1;
@@ -797,8 +799,14 @@ app.post('/api/customer/signup', (req, res) => {
   const reuseError = checkPasswordReuse(existing?.id, password, null, null);
   if (reuseError) return res.status(400).json({ error: reuseError });
 
-  const otpResult = verifyOtpCode(phone, code);
-  if (!otpResult.ok) return res.status(401).json({ error: otpResult.error });
+  // Only customers opting in to texts prove ownership of the number with a code.
+  let phoneVerified = 0;
+  if (smsConsent) {
+    if (!code) return res.status(400).json({ error: 'Enter the verification code we texted you.' });
+    const otpResult = verifyOtpCode(phone, code);
+    if (!otpResult.ok) return res.status(401).json({ error: otpResult.error });
+    phoneVerified = 1;
+  }
 
   const { hash, salt } = hashPassword(password);
   const preferredId = preferred_barber_id || null;
@@ -807,15 +815,15 @@ app.post('/api/customer/signup', (req, res) => {
   if (existing) {
     db.prepare(`
       UPDATE customers SET name = ?, email = COALESCE(?, email), preferred_barber_id = ?, password_hash = ?, password_salt = ?, password_set_at = datetime('now'),
-        sms_consent = ?, sms_consent_at = ?
+        sms_consent = ?, sms_consent_at = ?, phone_verified = ?
       WHERE id = ?
-    `).run(name, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt, existing.id);
+    `).run(name, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt, phoneVerified, existing.id);
     customerId = existing.id;
   } else {
     const info = db.prepare(`
-      INSERT INTO customers (name, phone, email, preferred_barber_id, password_hash, password_salt, password_set_at, sms_consent, sms_consent_at)
-      VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?)
-    `).run(name, phone, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt);
+      INSERT INTO customers (name, phone, email, preferred_barber_id, password_hash, password_salt, password_set_at, sms_consent, sms_consent_at, phone_verified)
+      VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
+    `).run(name, phone, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt, phoneVerified);
     customerId = info.lastInsertRowid;
   }
 
