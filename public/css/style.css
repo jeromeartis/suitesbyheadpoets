@@ -322,7 +322,7 @@ p { margin: 0 0 1em; color: var(--paper-dim); }
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 16px;
+  padding-top: 8px;
   transition: border-color .15s, transform .15s;
 }
 .barber-card:hover { border-color: var(--brass-dim); transform: translateY(-2px); }
@@ -357,7 +357,7 @@ p { margin: 0 0 1em; color: var(--paper-dim); }
   font-size: 3.4rem;
   color: var(--brass-dim);
 }
-.barber-body { padding: 24px 18px 18px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; flex: 1; width: 100%; }
+.barber-body { padding: 16px 18px 18px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 5px; flex: 1; width: 100%; }
 .barber-body h3 { margin: 0; }
 .barber-specialty { color: var(--brass); font-size: 0.8rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; }
 .barber-bio { font-size: 0.88rem; flex: 1; }
@@ -914,7 +914,7 @@ footer {
 
   .barber-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
   .barber-photo { width: 118px; height: 144px; }
-  .barber-body { padding: 22px 10px 14px; }
+  .barber-body { padding: 14px 10px 14px; }
   .form-grid-2 { gap: 12px; }
 }
 
