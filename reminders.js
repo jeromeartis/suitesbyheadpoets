@@ -26,12 +26,14 @@ function to12h(t) {
 async function sendAppointmentReminders() {
   const date = tomorrowDateString();
 
+  // Only remind customers who opted in to appointment texts. Others still see their
+  // booking in their account; we just don't text them.
   const rows = db.prepare(`
     SELECT a.*, b.name AS barber_name, c.name AS customer_name, c.phone AS customer_phone
     FROM appointments a
     JOIN barbers b ON b.id = a.barber_id
     JOIN customers c ON c.id = a.customer_id
-    WHERE a.appt_date = ? AND a.status = 'confirmed' AND a.reminder_sent = 0
+    WHERE a.appt_date = ? AND a.status = 'confirmed' AND a.reminder_sent = 0 AND c.sms_consent = 1
   `).all(date);
 
   const results = [];

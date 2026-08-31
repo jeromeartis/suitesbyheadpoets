@@ -543,14 +543,9 @@ if (submitWalkinBtn) {
     const name = document.getElementById('walkin-name').value.trim();
     const phone = document.getElementById('walkin-phone').value.trim();
     const note = document.getElementById('walkin-note').value.trim();
-    const smsConsent = document.getElementById('walkin-sms-consent').checked;
 
     if (!name || !phone) {
       banner.innerHTML = `<div class="banner error">Name and phone number are required.</div>`;
-      return;
-    }
-    if (!smsConsent) {
-      banner.innerHTML = `<div class="banner error">Please check the box to agree to receive a text about your place in line.</div>`;
       return;
     }
 
@@ -570,7 +565,6 @@ if (submitWalkinBtn) {
       document.getElementById('walkin-name').value = '';
       document.getElementById('walkin-phone').value = '';
       document.getElementById('walkin-note').value = '';
-      document.getElementById('walkin-sms-consent').checked = false;
       if (allFake) {
         banner.innerHTML = `<div class="banner info">You're checked in! Testing mode — SMS isn't configured, so here's the text ${data.sentTo} barber${data.sentTo === 1 ? '' : 's'} would have gotten:<br><strong>${escapeHtml(data.body)}</strong></div>`;
         setTimeout(returnHomeFromWalkin, 4500);

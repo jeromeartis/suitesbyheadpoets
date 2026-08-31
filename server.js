@@ -758,6 +758,9 @@ app.post('/api/customer/signup', (req, res) => {
   if (!name || !phone || !code || !password) {
     return res.status(400).json({ error: 'Name, phone, code, and password are required.' });
   }
+  // Opt-in to ongoing appointment texts is optional — never a condition of signup.
+  const smsConsent = req.body.sms_consent === true || req.body.sms_consent === 'true' || req.body.sms_consent === 1;
+  const consentAt = smsConsent ? new Date().toISOString() : null;
 
   // Validate everything that doesn't require the code first — the code gets
   // consumed on a successful check, so failing it shouldn't burn a valid one.
@@ -778,15 +781,16 @@ app.post('/api/customer/signup', (req, res) => {
   let customerId;
   if (existing) {
     db.prepare(`
-      UPDATE customers SET name = ?, email = COALESCE(?, email), preferred_barber_id = ?, password_hash = ?, password_salt = ?, password_set_at = datetime('now')
+      UPDATE customers SET name = ?, email = COALESCE(?, email), preferred_barber_id = ?, password_hash = ?, password_salt = ?, password_set_at = datetime('now'),
+        sms_consent = ?, sms_consent_at = ?
       WHERE id = ?
-    `).run(name, email || null, preferredId, hash, salt, existing.id);
+    `).run(name, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt, existing.id);
     customerId = existing.id;
   } else {
     const info = db.prepare(`
-      INSERT INTO customers (name, phone, email, preferred_barber_id, password_hash, password_salt, password_set_at)
-      VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
-    `).run(name, phone, email || null, preferredId, hash, salt);
+      INSERT INTO customers (name, phone, email, preferred_barber_id, password_hash, password_salt, password_set_at, sms_consent, sms_consent_at)
+      VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?)
+    `).run(name, phone, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt);
     customerId = info.lastInsertRowid;
   }
 
@@ -1112,7 +1116,7 @@ app.put('/api/barber/me/appointments/:id/status', requireBarberAuth, async (req,
   if (wasPending && (status === 'confirmed' || status === 'cancelled')) {
     const customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(appt.customer_id);
     const barber = db.prepare('SELECT * FROM barbers WHERE id = ?').get(req.session.barberId);
-    if (customer && barber) {
+    if (customer && barber && customer.sms_consent) {
       const body = status === 'confirmed'
         ? `✅ Your ${SHOP_NAME} appointment with ${barber.name} on ${appt.appt_date} at ${appt.appt_time} is confirmed!`
         : `Your ${SHOP_NAME} appointment request with ${barber.name} for ${appt.appt_date} at ${appt.appt_time} was declined. Please pick another time.`;

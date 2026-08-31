@@ -234,11 +234,9 @@ document.getElementById('signup-send-code-btn').addEventListener('click', async 
   const password = document.getElementById('signup-password').value;
   const confirmField = document.getElementById('signup-confirm-password');
   const confirmPassword = confirmField.value;
-  const smsConsent = document.getElementById('signup-sms-consent').checked;
   const banner = document.getElementById('login-banner');
   confirmField.classList.remove('field-error');
   if (!name || !phone || !password) { banner.innerHTML = `<div class="banner error">Name, phone, and password are required.</div>`; return; }
-  if (!smsConsent) { banner.innerHTML = `<div class="banner error">Please agree to receive appointment texts to continue — that's how we confirm and remind you about bookings.</div>`; return; }
   const strengthError = passwordStrengthError(password);
   if (strengthError) { alert(strengthError); return; }
   if (password !== confirmPassword) {
@@ -278,6 +276,7 @@ document.getElementById('signup-verify-btn').addEventListener('click', async () 
   const password = document.getElementById('signup-password').value;
   const preferred_barber_id = document.getElementById('signup-preferred-barber').value || null;
   const code = document.getElementById('signup-code').value.trim();
+  const sms_consent = document.getElementById('signup-sms-consent').checked;
   const banner = document.getElementById('login-banner');
 
   const btn = document.getElementById('signup-verify-btn');
@@ -285,7 +284,7 @@ document.getElementById('signup-verify-btn').addEventListener('click', async () 
   try {
     const res = await fetch('/api/customer/signup', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, email, password, preferred_barber_id, code })
+      body: JSON.stringify({ name, phone, email, password, preferred_barber_id, code, sms_consent })
     });
     const data = await res.json();
     if (!res.ok) { banner.innerHTML = `<div class="banner error">${escapeHtml(data.error)}</div>`; return; }
@@ -299,7 +298,7 @@ document.getElementById('signup-verify-btn').addEventListener('click', async () 
 document.getElementById('logout-link').addEventListener('click', async (e) => {
   e.preventDefault();
   await fetch('/api/customer/logout', { method: 'POST' });
-  location.reload();
+  location.href = '/';
 });
 
 async function checkSession() {

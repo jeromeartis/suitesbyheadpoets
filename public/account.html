@@ -89,7 +89,7 @@
         <div class="form-row">
           <label style="display:flex; align-items:flex-start; gap:8px; font-weight:400;">
             <input type="checkbox" id="signup-sms-consent" style="margin-top:3px;">
-            <span>I agree to receive appointment texts (confirmations, reminders, changes) from SuitesByHeadPoets at this number. Msg &amp; data rates may apply, message frequency varies. Reply STOP to opt out, HELP for help. See our <a href="/privacy.html" target="_blank" style="color:inherit; text-decoration:underline;">SMS &amp; privacy terms</a>.</span>
+            <span><strong>Optional:</strong> text me appointment confirmations, reminders, and changes at this number. You don't need to agree to this to create an account or book. Msg &amp; data rates may apply, message frequency varies. Reply STOP to opt out, HELP for help. See our <a href="/privacy.html" target="_blank" style="color:inherit; text-decoration:underline;">SMS &amp; privacy terms</a>.</span>
           </label>
         </div>
         <div class="form-row">
@@ -115,6 +115,7 @@
           </div>
         </div>
         <button class="btn btn-primary btn-block" id="signup-send-code-btn">Send verification code</button>
+        <p style="font-size:0.8rem; color:#666; margin-top:8px; margin-bottom:0;">We'll text a one-time 6-digit code to this number to verify it's yours. Standard message and data rates may apply.</p>
       </div>
       <div id="signup-code-step" style="display:none;">
         <p style="margin-top:0;">We texted a 6-digit code to <span id="signup-code-phone-display"></span>.</p>

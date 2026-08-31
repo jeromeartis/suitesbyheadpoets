@@ -152,6 +152,11 @@ safeAlter(`ALTER TABLE barbers ADD COLUMN instagram TEXT`);
 safeAlter(`ALTER TABLE barbers ADD COLUMN twitter TEXT`);
 safeAlter(`ALTER TABLE barbers ADD COLUMN last_login_at TEXT`);
 safeAlter(`ALTER TABLE customers ADD COLUMN last_login_at TEXT`);
+// Opt-in to ongoing appointment texts (confirmations, reminders). Not required to
+// have an account — the one-time signup verification code is sent regardless
+// because the user requests it. 0 = no consent on file.
+safeAlter(`ALTER TABLE customers ADD COLUMN sms_consent INTEGER NOT NULL DEFAULT 0`);
+safeAlter(`ALTER TABLE customers ADD COLUMN sms_consent_at TEXT`);
 
 // Default weekly availability template used when a barber is created without one
 const DEFAULT_AVAILABILITY = {
