@@ -62,7 +62,10 @@ document.getElementById('login-btn').addEventListener('click', async () => {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password })
   });
   if (res.ok) { showDashboard(); }
-  else document.getElementById('login-banner').innerHTML = `<div class="banner error">Incorrect password.</div>`;
+  else {
+    const data = await res.json().catch(() => ({}));
+    document.getElementById('login-banner').innerHTML = `<div class="banner error">${escapeHtml(data.error || 'Incorrect password.')}</div>`;
+  }
 });
 document.getElementById('login-password').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') document.getElementById('login-btn').click();

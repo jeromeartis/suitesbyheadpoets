@@ -177,6 +177,10 @@ document.getElementById('barber-forgot-reset-btn').addEventListener('click', asy
     });
     const data = await res.json();
     if (!res.ok) { banner.innerHTML = `<div class="banner error">${escapeHtml(data.error)}</div>`; return; }
+    if (data.signedIn === false) {
+      banner.innerHTML = `<div class="banner info">${escapeHtml(data.notice || 'Password updated. Sign in to continue.')}</div>`;
+      return;
+    }
     await checkSession();
   } finally {
     btn.disabled = false; btn.textContent = 'Set new password & sign in';
