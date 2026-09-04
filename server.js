@@ -137,9 +137,24 @@ function requireBarberAuth(req, res, next) {
   return res.status(401).json({ error: 'Not logged in' });
 }
 
+// Manager and barber are mutually exclusive within one browser session. Someone
+// who is both has to sign out of one role before signing into the other, so a
+// session always acts as exactly one staff identity. `role` is the role being
+// signed into; returns the label of the conflicting role that's already active.
+function conflictingStaffRole(session, role) {
+  if (!session) return null;
+  if (role === 'admin' && session.barberId) return 'the barber portal';
+  if (role === 'barber' && session.isAdmin) return 'Management';
+  return null;
+}
+
 app.post('/api/login', (req, res) => {
   const { password } = req.body;
   if (password && password === process.env.ADMIN_PASSWORD) {
+    const conflict = conflictingStaffRole(req.session, 'admin');
+    if (conflict) {
+      return res.status(409).json({ error: `You're signed in on ${conflict}. Sign out there first, then log in as manager.` });
+    }
     req.session.isAdmin = true;
     req.session.cookie.maxAge = STAFF_SESSION_MAX_AGE_MS;
     return res.json({ ok: true });
@@ -397,6 +412,11 @@ app.post('/api/barber/signup', (req, res) => {
   if (!barber) return res.status(404).json({ error: 'This invite link is invalid or has already been used.' });
   if (new Date(barber.invite_expires_at) < new Date()) return res.status(410).json({ error: 'This invite link has expired. Ask the shop to send you a new one.' });
 
+  const conflict = conflictingStaffRole(req.session, 'barber');
+  if (conflict) {
+    return res.status(409).json({ error: `You're signed in on ${conflict}. Sign out there first, then set up your barber login.` });
+  }
+
   const { hash, salt } = hashPassword(password);
   db.prepare('UPDATE barbers SET password_hash = ?, password_salt = ?, invite_token = NULL, invite_expires_at = NULL WHERE id = ?')
     .run(hash, salt, barber.id);
@@ -417,6 +437,11 @@ app.post('/api/barber/login', (req, res) => {
   }
   if (!passwordMatches(password, barber.password_hash, barber.password_salt)) {
     return res.status(401).json({ error: 'Incorrect password.' });
+  }
+
+  const conflict = conflictingStaffRole(req.session, 'barber');
+  if (conflict) {
+    return res.status(409).json({ error: `You're signed in on ${conflict}. Sign out there first, then log in to the barber portal.` });
   }
 
   req.session.barberId = barber.id;
@@ -448,10 +473,16 @@ app.post('/api/barber/forgot-password', (req, res) => {
   const { hash, salt } = hashPassword(newPassword);
   db.prepare('UPDATE barbers SET password_hash = ?, password_salt = ? WHERE id = ?').run(hash, salt, barber.id);
 
+  // Password is reset regardless; only the auto-sign-in is blocked by a conflict.
+  const conflict = conflictingStaffRole(req.session, 'barber');
+  if (conflict) {
+    return res.json({ ok: true, signedIn: false, notice: `Password updated. You're signed in on ${conflict}, so sign out there before logging in to the barber portal.` });
+  }
+
   req.session.barberId = barber.id;
   req.session.cookie.maxAge = STAFF_SESSION_MAX_AGE_MS;
   touchLastLogin('barbers', barber.id);
-  res.json({ ok: true });
+  res.json({ ok: true, signedIn: true });
 });
 
 app.post('/api/barber/logout', (req, res) => {
