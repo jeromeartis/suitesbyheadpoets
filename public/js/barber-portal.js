@@ -197,7 +197,11 @@ function showPortal() {
   document.getElementById('login-shell').style.display = 'none';
   document.getElementById('portal-shell').style.display = 'block';
   document.getElementById('logout-link').style.display = 'inline';
-  document.getElementById('welcome-heading').textContent = `Welcome back, ${firstName(currentBarber.name)}`;
+  const who = currentBarber.first_name || firstName(currentBarber.name);
+  const navUser = document.getElementById('nav-user');
+  navUser.textContent = `Signed in as ${who}`;
+  navUser.style.display = 'inline';
+  document.getElementById('welcome-heading').textContent = `Welcome back, ${who}`;
 
   document.getElementById('email-input').value = currentBarber.email || '';
   document.getElementById('specialty-input').value = currentBarber.specialty || '';

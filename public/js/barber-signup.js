@@ -28,7 +28,7 @@ async function loadInvite() {
     const res = await fetch(`/api/barber/invite/${token}`);
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'This invite link is invalid.');
-    document.getElementById('invite-greeting').textContent = `Hi ${data.name.split(' ')[0]} — set a password for ${data.phone} to finish setting up your profile.`;
+    document.getElementById('invite-greeting').textContent = `Hi ${data.first_name || (data.name || '').split(' ')[0]} — set a password for ${data.phone} to finish setting up your profile.`;
     document.getElementById('signup-form-wrap').style.display = 'block';
   } catch (err) {
     banner.innerHTML = `<div class="banner error">${escapeHtml(err.message)}</div>`;

@@ -155,6 +155,37 @@ app.get('/api/session', (req, res) => {
   res.json({ isAdmin: !!(req.session && req.session.isAdmin) });
 });
 
+// ---- name helpers ----
+// Names are entered as separate first/last fields, but we still store a combined
+// `name` ("First Last") for SMS copy and existing UI. These normalize whatever a
+// request sent — first_name/last_name, or just a combined `name` from an older
+// client / guest booking — into all three values.
+function splitName(full) {
+  const trimmed = String(full || '').trim();
+  const sp = trimmed.indexOf(' ');
+  return sp === -1
+    ? { first_name: trimmed, last_name: '' }
+    : { first_name: trimmed.slice(0, sp), last_name: trimmed.slice(sp + 1).trim() };
+}
+function joinName(first, last) {
+  return [first, last].map((s) => String(s || '').trim()).filter(Boolean).join(' ');
+}
+function resolveName(body = {}, existing = {}) {
+  let first = String(body.first_name || '').trim();
+  let last = String(body.last_name || '').trim();
+  if (!first && !last && body.name != null && String(body.name).trim()) {
+    ({ first_name: first, last_name: last } = splitName(body.name));
+  }
+  if (!first && !last) {
+    return {
+      first_name: existing.first_name || '',
+      last_name: existing.last_name || '',
+      name: existing.name || ''
+    };
+  }
+  return { first_name: first, last_name: last, name: joinName(first, last) };
+}
+
 // ================= BARBERS =================
 
 // Public: list active barbers (booking page / directory)
@@ -202,8 +233,9 @@ app.get('/api/barbers/:id', (req, res) => {
 
 // Management: create barber
 app.post('/api/barbers', requireAuth, upload.single('photo'), asyncRoute(async (req, res) => {
-  const { name, phone, email, booth_number, specialty, bio, instagram, twitter } = req.body;
-  if (!name || !phone) return res.status(400).json({ error: 'Name and phone are required' });
+  const { phone, email, booth_number, specialty, bio, instagram, twitter } = req.body;
+  const { first_name, last_name, name } = resolveName(req.body);
+  if (!first_name || !phone) return res.status(400).json({ error: 'First name and phone are required' });
 
   let availability = DEFAULT_AVAILABILITY;
   if (req.body.availability) {
@@ -218,9 +250,9 @@ app.post('/api/barbers', requireAuth, upload.single('photo'), asyncRoute(async (
   const photo = req.file ? `/uploads/${await saveProcessedImage(req.file.buffer, { prefix: 'barber', maxDimension: 1200 })}` : null;
 
   const info = db.prepare(`
-    INSERT INTO barbers (name, phone, email, booth_number, specialty, bio, photo, availability, services, instagram, twitter)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(name, phone, email || null, booth_number || null, specialty || null, bio || null, photo, JSON.stringify(availability), JSON.stringify(services), instagram || null, twitter || null);
+    INSERT INTO barbers (name, first_name, last_name, phone, email, booth_number, specialty, bio, photo, availability, services, instagram, twitter)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(name, first_name, last_name, phone, email || null, booth_number || null, specialty || null, bio || null, photo, JSON.stringify(availability), JSON.stringify(services), instagram || null, twitter || null);
 
   const barber = db.prepare('SELECT * FROM barbers WHERE id = ?').get(info.lastInsertRowid);
   res.status(201).json(sanitizeBarberForPublic({ ...barber, availability: JSON.parse(barber.availability), services: JSON.parse(barber.services) }));
@@ -231,8 +263,8 @@ app.put('/api/barbers/:id', requireAuth, upload.single('photo'), asyncRoute(asyn
   const existing = db.prepare('SELECT * FROM barbers WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Barber not found' });
 
+  const { first_name, last_name, name } = resolveName(req.body, existing);
   const {
-    name = existing.name,
     phone = existing.phone,
     email = existing.email,
     booth_number = existing.booth_number,
@@ -265,9 +297,9 @@ app.put('/api/barbers/:id', requireAuth, upload.single('photo'), asyncRoute(asyn
   const activeVal = active === undefined ? existing.active : (active === 'true' || active === true || active === '1' ? 1 : 0);
 
   db.prepare(`
-    UPDATE barbers SET name=?, phone=?, email=?, booth_number=?, specialty=?, bio=?, photo=?, availability=?, services=?, active=?, instagram=?, twitter=?
+    UPDATE barbers SET name=?, first_name=?, last_name=?, phone=?, email=?, booth_number=?, specialty=?, bio=?, photo=?, availability=?, services=?, active=?, instagram=?, twitter=?
     WHERE id=?
-  `).run(name, phone, email, booth_number, specialty, bio, photo, availability, services, activeVal, instagram || null, twitter || null, req.params.id);
+  `).run(name, first_name, last_name, phone, email, booth_number, specialty, bio, photo, availability, services, activeVal, instagram || null, twitter || null, req.params.id);
 
   const updated = db.prepare('SELECT * FROM barbers WHERE id = ?').get(req.params.id);
   res.json(sanitizeBarberForPublic({ ...updated, availability: JSON.parse(updated.availability), services: JSON.parse(updated.services) }));
@@ -352,7 +384,7 @@ app.get('/api/barber/invite/:token', (req, res) => {
   const barber = db.prepare('SELECT * FROM barbers WHERE invite_token = ?').get(req.params.token);
   if (!barber) return res.status(404).json({ error: 'This invite link is invalid or has already been used.' });
   if (new Date(barber.invite_expires_at) < new Date()) return res.status(410).json({ error: 'This invite link has expired. Ask the shop to send you a new one.' });
-  res.json({ name: barber.name, phone: barber.phone });
+  res.json({ name: barber.name, first_name: barber.first_name, last_name: barber.last_name, phone: barber.phone });
 });
 
 app.post('/api/barber/signup', (req, res) => {
@@ -516,22 +548,25 @@ app.get('/api/customers', requireAuth, (req, res) => {
 
 // Used by both the public booking flow and the management "add customer" form.
 // Upserts by phone number so repeat customers don't get duplicated.
-function findOrCreateCustomer({ name, phone, email, notes }) {
+function findOrCreateCustomer({ name, first_name, last_name, phone, email, notes }) {
   const existing = findCustomerByPhone(phone);
   if (existing) {
-    db.prepare('UPDATE customers SET name = ?, email = COALESCE(?, email), notes = COALESCE(?, notes) WHERE id = ?')
-      .run(name || existing.name, email, notes, existing.id);
+    const r = resolveName({ name, first_name, last_name }, existing);
+    db.prepare('UPDATE customers SET name = ?, first_name = ?, last_name = ?, email = COALESCE(?, email), notes = COALESCE(?, notes) WHERE id = ?')
+      .run(r.name || existing.name, r.first_name, r.last_name, email, notes, existing.id);
     return db.prepare('SELECT * FROM customers WHERE id = ?').get(existing.id);
   }
-  const info = db.prepare('INSERT INTO customers (name, phone, email, notes) VALUES (?, ?, ?, ?)')
-    .run(name, phone, email || null, notes || null);
+  const r = resolveName({ name, first_name, last_name });
+  const info = db.prepare('INSERT INTO customers (name, first_name, last_name, phone, email, notes) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(r.name, r.first_name, r.last_name, phone, email || null, notes || null);
   return db.prepare('SELECT * FROM customers WHERE id = ?').get(info.lastInsertRowid);
 }
 
 app.post('/api/customers', requireAuth, (req, res) => {
-  const { name, phone, email, notes } = req.body;
-  if (!name || !phone) return res.status(400).json({ error: 'Name and phone are required' });
-  const customer = findOrCreateCustomer({ name, phone, email, notes });
+  const { phone, email, notes } = req.body;
+  const { first_name, last_name, name } = resolveName(req.body);
+  if (!first_name || !phone) return res.status(400).json({ error: 'First name and phone are required' });
+  const customer = findOrCreateCustomer({ first_name, last_name, name, phone, email, notes });
   res.status(201).json(customer);
 });
 
@@ -781,9 +816,10 @@ app.post('/api/customer/request-otp', async (req, res) => {
 // already created this phone number (no password set), signup "claims" that
 // record instead of erroring, so their appointment history isn't lost.
 app.post('/api/customer/signup', (req, res) => {
-  const { name, phone, code, password, email, preferred_barber_id } = req.body;
-  if (!name || !phone || !password) {
-    return res.status(400).json({ error: 'Name, phone, and password are required.' });
+  const { phone, code, password, email, preferred_barber_id } = req.body;
+  const { first_name, last_name, name } = resolveName(req.body);
+  if (!first_name || !phone || !password) {
+    return res.status(400).json({ error: 'First name, phone, and password are required.' });
   }
   // Opt-in to ongoing appointment texts is optional — never a condition of signup.
   const smsConsent = req.body.sms_consent === true || req.body.sms_consent === 'true' || req.body.sms_consent === 1;
@@ -814,16 +850,16 @@ app.post('/api/customer/signup', (req, res) => {
   let customerId;
   if (existing) {
     db.prepare(`
-      UPDATE customers SET name = ?, email = COALESCE(?, email), preferred_barber_id = ?, password_hash = ?, password_salt = ?, password_set_at = datetime('now'),
+      UPDATE customers SET name = ?, first_name = ?, last_name = ?, email = COALESCE(?, email), preferred_barber_id = ?, password_hash = ?, password_salt = ?, password_set_at = datetime('now'),
         sms_consent = ?, sms_consent_at = ?, phone_verified = ?
       WHERE id = ?
-    `).run(name, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt, phoneVerified, existing.id);
+    `).run(name, first_name, last_name, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt, phoneVerified, existing.id);
     customerId = existing.id;
   } else {
     const info = db.prepare(`
-      INSERT INTO customers (name, phone, email, preferred_barber_id, password_hash, password_salt, password_set_at, sms_consent, sms_consent_at, phone_verified)
-      VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
-    `).run(name, phone, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt, phoneVerified);
+      INSERT INTO customers (name, first_name, last_name, phone, email, preferred_barber_id, password_hash, password_salt, password_set_at, sms_consent, sms_consent_at, phone_verified)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
+    `).run(name, first_name, last_name, phone, email || null, preferredId, hash, salt, smsConsent ? 1 : 0, consentAt, phoneVerified);
     customerId = info.lastInsertRowid;
   }
 
@@ -925,13 +961,14 @@ app.post('/api/customer/change-password', requireCustomerAuth, (req, res) => {
 
 app.put('/api/customer/me', requireCustomerAuth, blockIfPasswordExpired, (req, res) => {
   const existing = db.prepare('SELECT * FROM customers WHERE id = ?').get(req.session.customerId);
-  const { name = existing.name, email = existing.email, preferred_barber_id } = req.body;
+  const { email = existing.email, preferred_barber_id } = req.body;
+  const { first_name, last_name, name } = resolveName(req.body, existing);
   const preferredId = preferred_barber_id === '' || preferred_barber_id === undefined
     ? existing.preferred_barber_id
     : preferred_barber_id;
 
-  db.prepare('UPDATE customers SET name = ?, email = ?, preferred_barber_id = ? WHERE id = ?')
-    .run(name, email, preferredId, req.session.customerId);
+  db.prepare('UPDATE customers SET name = ?, first_name = ?, last_name = ?, email = ?, preferred_barber_id = ? WHERE id = ?')
+    .run(name, first_name, last_name, email, preferredId, req.session.customerId);
 
   res.json(db.prepare('SELECT * FROM customers WHERE id = ?').get(req.session.customerId));
 });

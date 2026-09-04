@@ -130,6 +130,7 @@ p { margin: 0 0 1em; color: var(--paper-dim); }
 .nav-links a:hover, .nav-links a.active { color: var(--brass); }
 .nav-links #auth-status { color: var(--paper-dim); font-family: var(--mono); font-size: 0.78rem; }
 .nav-links #auth-status a { color: var(--brass); margin-left: 6px; }
+.nav-links .nav-user { color: var(--brass); font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.02em; }
 
 /* ---------- hero ---------- */
 .hero {

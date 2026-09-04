@@ -16,6 +16,7 @@
     <a href="/" class="brand"><span class="mark">SH</span>SuitesByHeadPoets</a>
     <div class="nav-links">
       <a href="/">Home</a>
+      <span id="nav-user" class="nav-user" style="display:none;"></span>
       <a href="#" id="logout-link" style="display:none;">Log out</a>
     </div>
   </div>
@@ -79,8 +80,12 @@
     <div id="signup-panel" style="display:none;">
       <div id="signup-details-step">
         <div class="form-row">
-          <label>Name</label>
-          <input type="text" id="signup-name" placeholder="Jordan Lee" autocomplete="name">
+          <label>First name</label>
+          <input type="text" id="signup-first-name" placeholder="Jordan" autocomplete="given-name">
+        </div>
+        <div class="form-row">
+          <label>Last name</label>
+          <input type="text" id="signup-last-name" placeholder="Lee" autocomplete="family-name">
         </div>
         <div class="form-row">
           <label>Mobile number</label>
