@@ -96,11 +96,14 @@
             <input type="file" id="barber-photo" accept="image/*">
           </div>
           <div class="form-grid-2">
-            <div class="form-row"><label>Full name</label><input type="text" id="barber-name" required autocomplete="off"></div>
-            <div class="form-row"><label>Booth number</label><input type="number" id="barber-booth" min="1"></div>
+            <div class="form-row"><label>First name</label><input type="text" id="barber-first-name" required autocomplete="off"></div>
+            <div class="form-row"><label>Last name</label><input type="text" id="barber-last-name" autocomplete="off"></div>
           </div>
           <div class="form-grid-2">
             <div class="form-row"><label>Mobile number (for SMS)</label><input type="tel" id="barber-phone" required placeholder="+15551234567" autocomplete="off"></div>
+            <div class="form-row"><label>Booth number</label><input type="number" id="barber-booth" min="1"></div>
+          </div>
+          <div class="form-grid-2">
             <div class="form-row"><label>Email (optional)</label><input type="email" id="barber-email" autocomplete="off"></div>
           </div>
           <div class="form-row"><label>Specialty</label><input type="text" id="barber-specialty" placeholder="Fades, straight-razor, kids cuts…"></div>
@@ -172,11 +175,14 @@
         <h3>Add a customer</h3>
         <form id="customer-form">
           <div class="form-grid-2">
-            <div class="form-row"><label>Full name</label><input type="text" id="cust-form-name" required autocomplete="off"></div>
-            <div class="form-row"><label>Mobile number</label><input type="tel" id="cust-form-phone" required autocomplete="off"></div>
+            <div class="form-row"><label>First name</label><input type="text" id="cust-form-first-name" required autocomplete="off"></div>
+            <div class="form-row"><label>Last name</label><input type="text" id="cust-form-last-name" autocomplete="off"></div>
           </div>
           <div class="form-grid-2">
+            <div class="form-row"><label>Mobile number</label><input type="tel" id="cust-form-phone" required autocomplete="off"></div>
             <div class="form-row"><label>Email (optional)</label><input type="email" id="cust-form-email" autocomplete="off"></div>
+          </div>
+          <div class="form-grid-2">
             <div class="form-row"><label>Notes</label><input type="text" id="cust-form-notes" placeholder="Preferences, allergies, etc."></div>
           </div>
           <div style="display:flex; gap:12px;">

@@ -162,6 +162,29 @@ safeAlter(`ALTER TABLE customers ADD COLUMN sms_consent_at TEXT`);
 // without receiving any SMS at all.
 safeAlter(`ALTER TABLE customers ADD COLUMN phone_verified INTEGER NOT NULL DEFAULT 0`);
 
+// Names are collected as separate first/last fields. `name` is kept as the
+// combined "First Last" string because SMS copy and older UI still read it.
+safeAlter(`ALTER TABLE barbers ADD COLUMN first_name TEXT`);
+safeAlter(`ALTER TABLE barbers ADD COLUMN last_name TEXT`);
+safeAlter(`ALTER TABLE customers ADD COLUMN first_name TEXT`);
+safeAlter(`ALTER TABLE customers ADD COLUMN last_name TEXT`);
+
+// Backfill first/last for rows created before those columns existed: everything
+// up to the first space is the first name, the remainder is the last name.
+for (const table of ['barbers', 'customers']) {
+  const rows = db.prepare(
+    `SELECT id, name FROM ${table} WHERE (first_name IS NULL OR first_name = '') AND name IS NOT NULL AND name != ''`
+  ).all();
+  const upd = db.prepare(`UPDATE ${table} SET first_name = ?, last_name = ? WHERE id = ?`);
+  for (const r of rows) {
+    const trimmed = String(r.name).trim();
+    const sp = trimmed.indexOf(' ');
+    const first = sp === -1 ? trimmed : trimmed.slice(0, sp);
+    const last = sp === -1 ? '' : trimmed.slice(sp + 1).trim();
+    upd.run(first, last, r.id);
+  }
+}
+
 // Default weekly availability template used when a barber is created without one
 const DEFAULT_AVAILABILITY = {
   monday:    { off: false, start: '09:00', end: '18:00' },

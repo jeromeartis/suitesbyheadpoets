@@ -341,7 +341,8 @@ function openBarberForm(id) {
     const b = barbersCache.find((x) => x.id === id);
     document.getElementById('barber-form-title').textContent = `Edit ${b.name}`;
     document.getElementById('barber-id').value = b.id;
-    document.getElementById('barber-name').value = b.name;
+    document.getElementById('barber-first-name').value = b.first_name || (b.name || '').split(' ')[0] || '';
+    document.getElementById('barber-last-name').value = b.last_name || (b.name || '').split(' ').slice(1).join(' ');
     document.getElementById('barber-booth').value = b.booth_number || '';
     document.getElementById('barber-phone').value = b.phone;
     document.getElementById('barber-email').value = b.email || '';
@@ -382,7 +383,8 @@ document.getElementById('barber-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const id = document.getElementById('barber-id').value;
   const fd = new FormData();
-  fd.append('name', document.getElementById('barber-name').value);
+  fd.append('first_name', document.getElementById('barber-first-name').value.trim());
+  fd.append('last_name', document.getElementById('barber-last-name').value.trim());
   fd.append('phone', document.getElementById('barber-phone').value);
   fd.append('email', document.getElementById('barber-email').value);
   fd.append('booth_number', document.getElementById('barber-booth').value);
@@ -510,7 +512,8 @@ document.getElementById('cancel-customer-form').addEventListener('click', () => 
 document.getElementById('customer-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const body = {
-    name: document.getElementById('cust-form-name').value,
+    first_name: document.getElementById('cust-form-first-name').value.trim(),
+    last_name: document.getElementById('cust-form-last-name').value.trim(),
     phone: document.getElementById('cust-form-phone').value,
     email: document.getElementById('cust-form-email').value,
     notes: document.getElementById('cust-form-notes').value

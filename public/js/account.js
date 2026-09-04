@@ -242,7 +242,8 @@ syncSignupButtonLabel();
 
 function readSignupFields() {
   return {
-    name: document.getElementById('signup-name').value.trim(),
+    first_name: document.getElementById('signup-first-name').value.trim(),
+    last_name: document.getElementById('signup-last-name').value.trim(),
     phone: document.getElementById('signup-phone').value.trim(),
     email: document.getElementById('signup-email').value.trim(),
     password: document.getElementById('signup-password').value,
@@ -266,7 +267,7 @@ async function submitSignup(code) {
 }
 
 document.getElementById('signup-send-code-btn').addEventListener('click', async () => {
-  const name = document.getElementById('signup-name').value.trim();
+  const name = document.getElementById('signup-first-name').value.trim();
   const phone = document.getElementById('signup-phone').value.trim();
   const password = document.getElementById('signup-password').value;
   const confirmField = document.getElementById('signup-confirm-password');
@@ -274,7 +275,7 @@ document.getElementById('signup-send-code-btn').addEventListener('click', async 
   const banner = document.getElementById('login-banner');
   const wantsSms = signupConsentBox.checked;
   confirmField.classList.remove('field-error');
-  if (!name || !phone || !password) { banner.innerHTML = `<div class="banner error">Name, phone, and password are required.</div>`; return; }
+  if (!name || !phone || !password) { banner.innerHTML = `<div class="banner error">First name, phone, and password are required.</div>`; return; }
   const strengthError = passwordStrengthError(password);
   if (strengthError) { alert(strengthError); return; }
   if (password !== confirmPassword) {
@@ -342,7 +343,11 @@ async function showAccount(passwordExpired) {
   document.getElementById('login-shell').style.display = 'none';
   document.getElementById('account-shell').style.display = 'block';
   document.getElementById('logout-link').style.display = 'inline';
-  document.getElementById('welcome-heading').textContent = `Welcome back, ${firstName(currentCustomer.name)}`;
+  const who = currentCustomer.first_name || firstName(currentCustomer.name);
+  const navUser = document.getElementById('nav-user');
+  navUser.textContent = `Signed in as ${who}`;
+  navUser.style.display = 'inline';
+  document.getElementById('welcome-heading').textContent = `Welcome back, ${who}`;
   document.getElementById('password-gate-section').style.display = passwordExpired ? 'block' : 'none';
 
   document.getElementById('sms-consent-toggle').checked = currentCustomer.sms_consent === 1;
