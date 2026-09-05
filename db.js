@@ -17,6 +17,7 @@ db.exec(`
     phone TEXT NOT NULL,
     email TEXT,
     booth_number INTEGER,
+    booth_name TEXT,
     specialty TEXT,
     bio TEXT,
     photo TEXT,
@@ -150,6 +151,9 @@ safeAlter(`ALTER TABLE walkin_queue ADD COLUMN claimed_by_barber_id INTEGER REFE
 safeAlter(`ALTER TABLE walkin_queue ADD COLUMN claimed_at TEXT`);
 safeAlter(`ALTER TABLE barbers ADD COLUMN instagram TEXT`);
 safeAlter(`ALTER TABLE barbers ADD COLUMN twitter TEXT`);
+// A display name for the booth/suite ("The Loft", "Suite A"), shown to customers
+// alongside or instead of the booth number.
+safeAlter(`ALTER TABLE barbers ADD COLUMN booth_name TEXT`);
 safeAlter(`ALTER TABLE barbers ADD COLUMN last_login_at TEXT`);
 safeAlter(`ALTER TABLE customers ADD COLUMN last_login_at TEXT`);
 // Opt-in to ongoing appointment texts (confirmations, reminders). Not required to

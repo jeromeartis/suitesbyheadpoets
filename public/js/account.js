@@ -4,6 +4,12 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Booth name if the shop set one ("The Loft"), otherwise "Booth 3", otherwise a dash.
+function boothLabel(b) {
+  if (b && b.booth_name) return b.booth_name;
+  return b && b.booth_number ? `Booth ${b.booth_number}` : '—';
+}
+
 // Lets someone see what they just typed into a "create/set a password" field.
 const ICON_EYE = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`;
 const ICON_EYE_OFF = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
@@ -144,7 +150,7 @@ fetch('/api/barbers').then((r) => r.json()).then((list) => {
   list.forEach((b) => {
     const opt = document.createElement('option');
     opt.value = b.id;
-    opt.textContent = `${b.name} — Booth ${b.booth_number || '—'}`;
+    opt.textContent = `${b.name} — ${boothLabel(b)}`;
     select.appendChild(opt);
   });
 });
@@ -444,7 +450,7 @@ async function loadBarbers() {
 function renderPreferredSelect() {
   const select = document.getElementById('preferred-barber-select');
   select.innerHTML = `<option value="">No preference</option>` + barbers.map((b) =>
-    `<option value="${b.id}" ${currentCustomer.preferred_barber_id === b.id ? 'selected' : ''}>${escapeHtml(b.name)} — Booth ${b.booth_number || '—'}</option>`
+    `<option value="${b.id}" ${currentCustomer.preferred_barber_id === b.id ? 'selected' : ''}>${escapeHtml(b.name)} — ${escapeHtml(boothLabel(b))}</option>`
   ).join('');
 }
 
@@ -490,7 +496,7 @@ document.getElementById('save-preferred-btn').addEventListener('click', async ()
 function renderBookingBarberSelect() {
   const select = document.getElementById('acct-barber-select');
   select.innerHTML = `<option value="">Choose a barber…</option>` + barbers.map((b) =>
-    `<option value="${b.id}">${escapeHtml(b.name)} — Booth ${b.booth_number || '—'}${currentCustomer.preferred_barber_id === b.id ? ' (preferred)' : ''}</option>`
+    `<option value="${b.id}">${escapeHtml(b.name)} — ${escapeHtml(boothLabel(b))}${currentCustomer.preferred_barber_id === b.id ? ' (preferred)' : ''}</option>`
   ).join('');
   if (currentCustomer.preferred_barber_id) {
     select.value = String(currentCustomer.preferred_barber_id);
@@ -665,8 +671,8 @@ document.getElementById('acct-confirm-book').addEventListener('click', async () 
     document.getElementById('acct-add-to-calendar-btn').addEventListener('click', () => {
       downloadAppointmentIcs({
         title: `${service} with ${barber.name}`,
-        description: `Booked at ${barber.name.split(' ')[0]}'s booth${barber.booth_number ? ` #${barber.booth_number}` : ''}.`,
-        location: barber.booth_number ? `Booth ${barber.booth_number}` : '',
+        description: `Booked at ${barber.name.split(' ')[0]}'s booth${(barber.booth_name || barber.booth_number) ? ` — ${boothLabel(barber)}` : ''}.`,
+        location: (barber.booth_name || barber.booth_number) ? boothLabel(barber) : '',
         dateStr: date,
         timeStr: selectedSlot,
         durationMinutes: duration_minutes
@@ -703,15 +709,15 @@ function renderNextAppointment(rows) {
     : '';
   el.innerHTML = `
     <div style="font-family:var(--display);font-size:1.6rem;">${next.appt_date} · ${to12h(next.appt_time)}</div>
-    <div style="color:var(--paper-dim);margin:4px 0 12px;">${escapeHtml(next.barber_name)} · Booth ${next.booth_number || '—'}${next.service ? ' · ' + escapeHtml(next.service) : ''}</div>
+    <div style="color:var(--paper-dim);margin:4px 0 12px;">${escapeHtml(next.barber_name)} · ${escapeHtml(boothLabel(next))}${next.service ? ' · ' + escapeHtml(next.service) : ''}</div>
     ${pendingNote}
     <button type="button" class="btn btn-outline btn-sm" id="next-appt-cal-btn">📅 Add to calendar</button>
   `;
   document.getElementById('next-appt-cal-btn').addEventListener('click', () => {
     downloadAppointmentIcs({
       title: `${next.service || 'Haircut'} with ${next.barber_name}`,
-      description: `Booked at ${next.barber_name.split(' ')[0]}'s booth${next.booth_number ? ` #${next.booth_number}` : ''}.`,
-      location: next.booth_number ? `Booth ${next.booth_number}` : '',
+      description: `Booked at ${next.barber_name.split(' ')[0]}'s booth${(next.booth_name || next.booth_number) ? ` — ${boothLabel(next)}` : ''}.`,
+      location: (next.booth_name || next.booth_number) ? boothLabel(next) : '',
       dateStr: next.appt_date,
       timeStr: next.appt_time,
       durationMinutes: next.duration_minutes || 30
@@ -732,7 +738,7 @@ async function loadMyAppointments() {
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
         <div>
           <div style="font-family:var(--display);font-size:1.3rem;">${a.appt_date} · ${to12h(a.appt_time)}</div>
-          <div style="color:var(--paper-dim);font-size:0.9rem;">${escapeHtml(a.barber_name)} · Booth ${a.booth_number || '—'} ${a.service ? '· ' + escapeHtml(a.service) : ''}</div>
+          <div style="color:var(--paper-dim);font-size:0.9rem;">${escapeHtml(a.barber_name)} · ${escapeHtml(boothLabel(a))} ${a.service ? '· ' + escapeHtml(a.service) : ''}</div>
           <span class="pill ${a.status}">${a.status === 'pending' ? '⏳ pending approval' : a.status}</span>
         </div>
         ${a.status === 'confirmed' || a.status === 'pending' ? `
@@ -751,8 +757,8 @@ async function loadMyAppointments() {
     if (!a) return;
     downloadAppointmentIcs({
       title: `${a.service || 'Haircut'} with ${a.barber_name}`,
-      description: `Booked at ${a.barber_name.split(' ')[0]}'s booth${a.booth_number ? ` #${a.booth_number}` : ''}.`,
-      location: a.booth_number ? `Booth ${a.booth_number}` : '',
+      description: `Booked at ${a.barber_name.split(' ')[0]}'s booth${(a.booth_name || a.booth_number) ? ` — ${boothLabel(a)}` : ''}.`,
+      location: (a.booth_name || a.booth_number) ? boothLabel(a) : '',
       dateStr: a.appt_date,
       timeStr: a.appt_time,
       durationMinutes: a.duration_minutes || 30

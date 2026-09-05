@@ -67,7 +67,7 @@ function renderBarberGrid() {
     <div class="barber-card" data-id="${b.id}">
       <div class="barber-photo view-profile-trigger" style="${b.photo ? `background-image:url('${b.photo}')` : ''}">
         ${!b.photo ? `<div class="no-photo">${escapeHtml(b.name.charAt(0))}</div>` : ''}
-        <span class="booth-tag">BOOTH ${b.booth_number || '—'}</span>
+        <span class="booth-tag">${b.booth_name ? escapeHtml(b.booth_name) : `BOOTH ${b.booth_number || '—'}`}</span>
       </div>
       <div class="barber-body">
         <h3 class="view-profile-trigger" style="cursor:pointer;">${escapeHtml(b.name)}</h3>
@@ -145,7 +145,7 @@ function openBarberProfile(id) {
   document.getElementById('barber-profile-modal-body').innerHTML = `
     <div class="barber-photo" style="${b.photo ? `background-image:url('${b.photo}');` : ''} width:196px;height:238px;margin:2px auto 22px;">
       ${!b.photo ? `<div class="no-photo">${escapeHtml(b.name.charAt(0))}</div>` : ''}
-      <span class="booth-tag">BOOTH ${b.booth_number || '—'}</span>
+      <span class="booth-tag">${b.booth_name ? escapeHtml(b.booth_name) : `BOOTH ${b.booth_number || '—'}`}</span>
     </div>
     <h2 style="margin:0 0 4px; text-align:center;">${escapeHtml(b.name)}</h2>
     ${b.specialty ? `<div class="barber-specialty">${escapeHtml(b.specialty)}</div>` : ''}
@@ -176,6 +176,13 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Booth name if the shop set one ("The Loft"), otherwise "Booth 3", otherwise a dash.
+function boothLabel(b) {
+  if (b && b.booth_name) return b.booth_name;
+  return b && b.booth_number ? `Booth ${b.booth_number}` : '—';
+}
+function hasBooth(b) { return !!(b && (b.booth_name || b.booth_number)); }
+
 // Barbers can enter either a plain @handle or a full profile URL — build a clickable
 // link either way.
 function socialUrl(platform, value) {
@@ -190,7 +197,7 @@ function selectBarber(id) {
   selectedSlot = null;
   selectedDate = null;
   document.getElementById('book').style.display = 'block';
-  document.getElementById('book-heading').textContent = `Book with ${selectedBarber.name} — Booth ${selectedBarber.booth_number || '—'}`;
+  document.getElementById('book-heading').textContent = `Book with ${selectedBarber.name} — ${boothLabel(selectedBarber)}`;
   document.getElementById('book-banner').innerHTML = '';
   document.getElementById('book').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -487,8 +494,8 @@ document.getElementById('confirm-book').addEventListener('click', async () => {
     document.getElementById('add-to-calendar-btn').addEventListener('click', () => {
       downloadAppointmentIcs({
         title: `${service} with ${selectedBarber.name}`,
-        description: `Booked at ${selectedBarber.name.split(' ')[0]}'s booth${selectedBarber.booth_number ? ` #${selectedBarber.booth_number}` : ''}.`,
-        location: selectedBarber.booth_number ? `Booth ${selectedBarber.booth_number}` : '',
+        description: `Booked at ${selectedBarber.name.split(' ')[0]}'s booth${hasBooth(selectedBarber) ? ` — ${boothLabel(selectedBarber)}` : ''}.`,
+        location: hasBooth(selectedBarber) ? boothLabel(selectedBarber) : '',
         dateStr: date,
         timeStr: selectedSlot,
         durationMinutes: duration_minutes

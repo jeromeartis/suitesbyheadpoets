@@ -201,6 +201,15 @@ function resolveName(body = {}, existing = {}) {
   return { first_name: first, last_name: last, name: joinName(first, last) };
 }
 
+// How a barber's booth reads in messages and on the site: the booth name if one
+// is set ("The Loft"), otherwise "Booth 3", otherwise a dash. `b` can be a full
+// barber row or an appointments join row (booth_name / booth_number columns).
+function boothLabel(b) {
+  if (b && b.booth_name) return b.booth_name;
+  if (b && b.booth_number) return `Booth ${b.booth_number}`;
+  return '—';
+}
+
 // ================= BARBERS =================
 
 // Public: list active barbers (booking page / directory)
@@ -225,8 +234,8 @@ function sanitizeBarberForAdmin(b) {
 app.get('/api/barbers', (req, res) => {
   const includeInactive = req.query.all === '1' && req.session && req.session.isAdmin;
   const rows = includeInactive
-    ? db.prepare('SELECT * FROM barbers ORDER BY booth_number ASC').all()
-    : db.prepare('SELECT * FROM barbers WHERE active = 1 ORDER BY booth_number ASC').all();
+    ? db.prepare('SELECT * FROM barbers ORDER BY booth_number ASC, booth_name ASC').all()
+    : db.prepare('SELECT * FROM barbers WHERE active = 1 ORDER BY booth_number ASC, booth_name ASC').all();
 
   const galleryStmt = db.prepare('SELECT id, photo, caption FROM gallery_photos WHERE barber_id = ? ORDER BY created_at DESC LIMIT 6');
   const sanitize = includeInactive ? sanitizeBarberForAdmin : sanitizeBarberForPublic;
@@ -248,7 +257,7 @@ app.get('/api/barbers/:id', (req, res) => {
 
 // Management: create barber
 app.post('/api/barbers', requireAuth, upload.single('photo'), asyncRoute(async (req, res) => {
-  const { phone, email, booth_number, specialty, bio, instagram, twitter } = req.body;
+  const { phone, email, booth_number, booth_name, specialty, bio, instagram, twitter } = req.body;
   const { first_name, last_name, name } = resolveName(req.body);
   if (!first_name || !phone) return res.status(400).json({ error: 'First name and phone are required' });
 
@@ -265,9 +274,9 @@ app.post('/api/barbers', requireAuth, upload.single('photo'), asyncRoute(async (
   const photo = req.file ? `/uploads/${await saveProcessedImage(req.file.buffer, { prefix: 'barber', maxDimension: 1200 })}` : null;
 
   const info = db.prepare(`
-    INSERT INTO barbers (name, first_name, last_name, phone, email, booth_number, specialty, bio, photo, availability, services, instagram, twitter)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(name, first_name, last_name, phone, email || null, booth_number || null, specialty || null, bio || null, photo, JSON.stringify(availability), JSON.stringify(services), instagram || null, twitter || null);
+    INSERT INTO barbers (name, first_name, last_name, phone, email, booth_number, booth_name, specialty, bio, photo, availability, services, instagram, twitter)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(name, first_name, last_name, phone, email || null, booth_number || null, booth_name || null, specialty || null, bio || null, photo, JSON.stringify(availability), JSON.stringify(services), instagram || null, twitter || null);
 
   const barber = db.prepare('SELECT * FROM barbers WHERE id = ?').get(info.lastInsertRowid);
   res.status(201).json(sanitizeBarberForPublic({ ...barber, availability: JSON.parse(barber.availability), services: JSON.parse(barber.services) }));
@@ -283,6 +292,7 @@ app.put('/api/barbers/:id', requireAuth, upload.single('photo'), asyncRoute(asyn
     phone = existing.phone,
     email = existing.email,
     booth_number = existing.booth_number,
+    booth_name = existing.booth_name,
     specialty = existing.specialty,
     bio = existing.bio,
     instagram = existing.instagram,
@@ -312,9 +322,9 @@ app.put('/api/barbers/:id', requireAuth, upload.single('photo'), asyncRoute(asyn
   const activeVal = active === undefined ? existing.active : (active === 'true' || active === true || active === '1' ? 1 : 0);
 
   db.prepare(`
-    UPDATE barbers SET name=?, first_name=?, last_name=?, phone=?, email=?, booth_number=?, specialty=?, bio=?, photo=?, availability=?, services=?, active=?, instagram=?, twitter=?
+    UPDATE barbers SET name=?, first_name=?, last_name=?, phone=?, email=?, booth_number=?, booth_name=?, specialty=?, bio=?, photo=?, availability=?, services=?, active=?, instagram=?, twitter=?
     WHERE id=?
-  `).run(name, first_name, last_name, phone, email, booth_number, specialty, bio, photo, availability, services, activeVal, instagram || null, twitter || null, req.params.id);
+  `).run(name, first_name, last_name, phone, email, booth_number, booth_name || null, specialty, bio, photo, availability, services, activeVal, instagram || null, twitter || null, req.params.id);
 
   const updated = db.prepare('SELECT * FROM barbers WHERE id = ?').get(req.params.id);
   res.json(sanitizeBarberForPublic({ ...updated, availability: JSON.parse(updated.availability), services: JSON.parse(updated.services) }));
@@ -709,10 +719,10 @@ async function createAppointment({ barber_id, service, appt_date, appt_time, dur
         requiresApproval
           ? `🔔 Appointment REQUEST at ${SHOP_NAME}: ${customerRow.name} wants ${appt_date} at ${appt_time}` +
             (service ? ` for ${service}.` : '.') +
-            ` Booth #${barber.booth_number || '-'}. Approve or decline it from your barber portal.`
+            ` ${boothLabel(barber)}. Approve or decline it from your barber portal.`
           : `📅 New booking at ${SHOP_NAME}: ${customerRow.name} on ${appt_date} at ${appt_time}` +
             (service ? ` for ${service}.` : '.') +
-            ` Booth #${barber.booth_number || '-'}. Reply if you have a conflict.`
+            ` ${boothLabel(barber)}. Reply if you have a conflict.`
       )
     : { skipped: true, reason: 'barber booked this appointment themselves' };
 
@@ -1016,7 +1026,7 @@ app.put('/api/customer/me/sms-consent', requireCustomerAuth, (req, res) => {
 // Logged-in customer's own appointments, soonest first
 app.get('/api/customer/appointments', requireCustomerAuth, (req, res) => {
   const rows = db.prepare(`
-    SELECT a.*, b.name AS barber_name, b.booth_number, b.photo AS barber_photo
+    SELECT a.*, b.name AS barber_name, b.booth_number, b.booth_name, b.photo AS barber_photo
     FROM appointments a
     JOIN barbers b ON b.id = a.barber_id
     WHERE a.customer_id = ?

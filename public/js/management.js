@@ -276,7 +276,7 @@ function renderAdminBarberGrid() {
     <div class="barber-card" style="${b.active ? '' : 'opacity:.5'}">
       <div class="barber-photo" style="${b.photo ? `background-image:url('${b.photo}')` : ''}">
         ${!b.photo ? `<div class="no-photo">${escapeHtml(b.name.charAt(0))}</div>` : ''}
-        <span class="booth-tag">BOOTH ${b.booth_number || '—'}</span>
+        <span class="booth-tag">${b.booth_name ? escapeHtml(b.booth_name) : `BOOTH ${b.booth_number || '—'}`}</span>
       </div>
       <div class="barber-body">
         <h3>${escapeHtml(b.name)}</h3>
@@ -347,6 +347,7 @@ function openBarberForm(id) {
     document.getElementById('barber-first-name').value = b.first_name || (b.name || '').split(' ')[0] || '';
     document.getElementById('barber-last-name').value = b.last_name || (b.name || '').split(' ').slice(1).join(' ');
     document.getElementById('barber-booth').value = b.booth_number || '';
+    document.getElementById('barber-booth-name').value = b.booth_name || '';
     document.getElementById('barber-phone').value = b.phone;
     document.getElementById('barber-email').value = b.email || '';
     document.getElementById('barber-specialty').value = b.specialty || '';
@@ -391,6 +392,7 @@ document.getElementById('barber-form').addEventListener('submit', async (e) => {
   fd.append('phone', document.getElementById('barber-phone').value);
   fd.append('email', document.getElementById('barber-email').value);
   fd.append('booth_number', document.getElementById('barber-booth').value);
+  fd.append('booth_name', document.getElementById('barber-booth-name').value.trim());
   fd.append('specialty', document.getElementById('barber-specialty').value);
   fd.append('bio', document.getElementById('barber-bio').value);
   fd.append('instagram', document.getElementById('barber-instagram').value.trim());
