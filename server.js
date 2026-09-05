@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const cron = require('node-cron');
 const sharp = require('sharp');
 
@@ -48,9 +49,54 @@ const CUSTOMER_SESSION_MAX_AGE_MS = 1000 * 60 * 30; // 30 minutes
 // reflect the original scheme and the session cookie can be marked secure.
 app.set('trust proxy', 1);
 
-app.use(cors());
+// ---------- CORS ----------
+// The site is served from this same Express app, so ordinary use is same-origin
+// and never triggers CORS. We still scope the headers to our own origin (plus
+// localhost for dev) rather than the previous open `cors()` that echoed back any
+// origin. Requests with no Origin header — same-origin navigations, curl, the
+// Twilio inbound webhook — are unaffected.
+const allowedOrigins = [
+  process.env.BASE_URL,
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+].filter(Boolean);
+app.use(cors({
+  origin(origin, cb) {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(null, false);
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ---------- rate limiting ----------
+// In-memory counters (same scale trade-off as the session store — fine for one
+// instance). These guard the endpoints that spend real money (every call sends at
+// least one Twilio SMS) or gate account access. `trust proxy` is set above so the
+// real client IP is used behind Render's proxy.
+const rateLimited = (opts) => rateLimit({
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please wait a little while and try again.' },
+  ...opts
+});
+// Texted verification codes: cap per IP per hour, and per phone number per day, so
+// neither rotating IPs nor hammering one number can pump SMS. Both must pass.
+const otpIpLimiter = rateLimited({ windowMs: 60 * 60 * 1000, max: 8 });
+const otpPhoneLimiter = rateLimited({
+  windowMs: 24 * 60 * 60 * 1000,
+  max: 5,
+  keyGenerator: (req) => normalizePhoneDigits(req.body && req.body.phone || '') || req.ip
+});
+// Walk-in check-in texts EVERY active barber at once — the most expensive call on
+// the site. Public and unauthenticated, so keep it tight.
+const walkinLimiter = rateLimited({ windowMs: 60 * 60 * 1000, max: 6 });
+// Login / signup / password reset — slows credential stuffing and bulk signups.
+const authLimiter = rateLimited({ windowMs: 15 * 60 * 1000, max: 12 });
+// A logged-in customer creating bookings — generous headroom, just an abuse ceiling.
+const bookingLimiter = rateLimited({ windowMs: 60 * 60 * 1000, max: 15 });
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
@@ -148,7 +194,7 @@ function conflictingStaffRole(session, role) {
   return null;
 }
 
-app.post('/api/login', (req, res) => {
+app.post('/api/login', authLimiter, (req, res) => {
   const { password } = req.body;
   if (password && password === process.env.ADMIN_PASSWORD) {
     const conflict = conflictingStaffRole(req.session, 'admin');
@@ -402,7 +448,7 @@ app.get('/api/barber/invite/:token', (req, res) => {
   res.json({ name: barber.name, first_name: barber.first_name, last_name: barber.last_name, phone: barber.phone });
 });
 
-app.post('/api/barber/signup', (req, res) => {
+app.post('/api/barber/signup', authLimiter, (req, res) => {
   const { token, password } = req.body;
   if (!token || !password) return res.status(400).json({ error: 'Token and password are required.' });
   const strengthError = validatePasswordStrength(password);
@@ -427,7 +473,7 @@ app.post('/api/barber/signup', (req, res) => {
   res.status(201).json({ ok: true });
 });
 
-app.post('/api/barber/login', (req, res) => {
+app.post('/api/barber/login', authLimiter, (req, res) => {
   const { phone, password } = req.body;
   if (!phone || !password) return res.status(400).json({ error: 'Phone and password are required.' });
 
@@ -453,7 +499,7 @@ app.post('/api/barber/login', (req, res) => {
 // Forgot password: reuses the same texted 6-digit code flow as customer signup
 // (POST /api/customer/request-otp — it's generic, not customer-specific) to prove
 // the barber owns that phone, then sets a new password in the same step.
-app.post('/api/barber/forgot-password', (req, res) => {
+app.post('/api/barber/forgot-password', authLimiter, (req, res) => {
   const { phone, code, newPassword } = req.body;
   if (!phone || !code || !newPassword) return res.status(400).json({ error: 'Phone, code, and new password are required.' });
 
@@ -816,9 +862,20 @@ function archiveCurrentPassword(customerId, hash, salt) {
   `).run(customerId, customerId);
 }
 
-app.post('/api/customer/request-otp', async (req, res) => {
+app.post('/api/customer/request-otp', otpIpLimiter, otpPhoneLimiter, async (req, res) => {
   const { phone } = req.body;
   if (!phone) return res.status(400).json({ error: 'Phone number is required' });
+
+  // Per-number cooldown: if a still-fresh code went out in the last 45s, don't
+  // send another (covers rapid double-taps and IP rotation between the limiters).
+  const phoneKey = normalizePhoneDigits(phone);
+  const prior = db.prepare('SELECT expires_at FROM otp_codes WHERE phone = ?').get(phoneKey);
+  if (prior) {
+    const sentAgoMs = Date.now() - (new Date(prior.expires_at).getTime() - 10 * 60 * 1000);
+    if (sentAgoMs >= 0 && sentAgoMs < 45 * 1000) {
+      return res.status(429).json({ error: 'We just texted you a code — check your messages. You can request another in a minute.' });
+    }
+  }
 
   const code = generateOtp();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
@@ -828,7 +885,7 @@ app.post('/api/customer/request-otp', async (req, res) => {
   db.prepare(`
     INSERT INTO otp_codes (phone, code, expires_at, attempts) VALUES (?, ?, ?, 0)
     ON CONFLICT(phone) DO UPDATE SET code = excluded.code, expires_at = excluded.expires_at, attempts = 0
-  `).run(normalizePhoneDigits(phone), code, expiresAt);
+  `).run(phoneKey, code, expiresAt);
 
   const smsResult = await sendSms(phone, `Your ${SHOP_NAME} verification code is ${code}. It expires in 10 minutes.`);
   // When Twilio isn't configured, sendSms just logs to the server console and nobody
@@ -846,7 +903,7 @@ app.post('/api/customer/request-otp', async (req, res) => {
 // sign up and use the site without ever receiving an SMS. If a guest booking
 // already created this phone number (no password set), signup "claims" that
 // record instead of erroring, so their appointment history isn't lost.
-app.post('/api/customer/signup', (req, res) => {
+app.post('/api/customer/signup', authLimiter, (req, res) => {
   const { phone, code, password, email, preferred_barber_id } = req.body;
   const { first_name, last_name, name } = resolveName(req.body);
   if (!first_name || !phone || !password) {
@@ -901,7 +958,7 @@ app.post('/api/customer/signup', (req, res) => {
   res.status(201).json({ ok: true, customer: db.prepare('SELECT * FROM customers WHERE id = ?').get(customerId) });
 });
 
-app.post('/api/customer/login', (req, res) => {
+app.post('/api/customer/login', authLimiter, (req, res) => {
   const { phone, password } = req.body;
   if (!phone || !password) return res.status(400).json({ error: 'Phone and password are required.' });
 
@@ -920,7 +977,7 @@ app.post('/api/customer/login', (req, res) => {
 });
 
 // Forgot password: verify a texted code, then set a new password in the same step.
-app.post('/api/customer/forgot-password', (req, res) => {
+app.post('/api/customer/forgot-password', authLimiter, (req, res) => {
   const { phone, code, newPassword } = req.body;
   if (!phone || !code || !newPassword) return res.status(400).json({ error: 'Phone, code, and new password are required.' });
 
@@ -1026,7 +1083,7 @@ app.get('/api/customer/appointments', requireCustomerAuth, (req, res) => {
 });
 
 // Logged-in customer books their own appointment (no need to re-type name/phone)
-app.post('/api/customer/appointments', requireCustomerAuth, blockIfPasswordExpired, async (req, res) => {
+app.post('/api/customer/appointments', bookingLimiter, requireCustomerAuth, blockIfPasswordExpired, async (req, res) => {
   const { barber_id, service, appt_date, appt_time, duration_minutes } = req.body;
   if (!barber_id || !appt_date || !appt_time) {
     return res.status(400).json({ error: 'barber_id, appt_date, and appt_time are required' });
@@ -1323,7 +1380,7 @@ app.put('/api/appointments/token/:token/reschedule', async (req, res) => {
 // Creates/updates their customer record, adds them to the waiting queue, and fires
 // the same mass alert to every active barber as the staff walk-in button does —
 // each barber can claim it by texting back "2" (see /api/sms/inbound below).
-app.post('/api/walkin/join', async (req, res) => {
+app.post('/api/walkin/join', walkinLimiter, async (req, res) => {
   const { name, phone } = req.body;
   let note = req.body.note;
   if (!name || !phone) return res.status(400).json({ error: 'Name and phone are required' });

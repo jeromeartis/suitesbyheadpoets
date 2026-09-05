@@ -225,6 +225,17 @@ barbershop-app/
   most hosts that means everyone gets logged out if the app restarts or redeploys —
   fine for a shop this size, but if that becomes annoying, swap in a persistent
   session store like `connect-sqlite3` or Redis.
+- **Rate limiting** (in-memory, via `express-rate-limit`) guards the endpoints that
+  spend money or gate accounts: texted verification codes are capped at 8/hour per IP
+  and 5/day per phone number (plus a 45-second per-number resend cooldown), the
+  walk-in check-in at 6/hour per IP, logins/signups at 12 per 15 min per IP, and
+  customer bookings at 15/hour. Tune the numbers at the top of `server.js` under
+  "rate limiting". Counters reset on restart. Also set a Twilio spending limit and
+  disable countries you don't serve in the Twilio console — that caps SMS-pumping
+  damage regardless of app code.
+- **CORS** is scoped to `BASE_URL` (plus localhost for dev). The site is served from
+  the same server, so this doesn't affect normal use — but set `BASE_URL` to your
+  real URL in production or cross-origin API calls from your own domain will fail.
 - Appointment slots are generated in 30-minute increments from each barber's daily
   start/end time. Change the `30` in `renderSlotsForDate()` (in `booking.js` and
   `account.js`) if you want a different increment.
