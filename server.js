@@ -82,11 +82,15 @@ const rateLimited = (opts) => rateLimit({
   message: { error: 'Too many requests. Please wait a little while and try again.' },
   ...opts
 });
-// Texted verification codes: cap per IP per hour, and per phone number per day, so
-// neither rotating IPs nor hammering one number can pump SMS. Both must pass.
+// Texted verification codes: cap per IP and per phone number, both over a rolling
+// hour, so neither rotating IPs nor hammering one number can pump SMS. Both must
+// pass. A 1-hour window (not a day) means an unlucky legit user — slow-arriving
+// text, expired code, a few mistyped entries — recovers within the hour instead
+// of being locked out until tomorrow. The 45s per-number resend cooldown in the
+// handler is the first line against rapid-fire.
 const otpIpLimiter = rateLimited({ windowMs: 60 * 60 * 1000, max: 8 });
 const otpPhoneLimiter = rateLimited({
-  windowMs: 24 * 60 * 60 * 1000,
+  windowMs: 60 * 60 * 1000,
   max: 5,
   keyGenerator: (req) => normalizePhoneDigits(req.body && req.body.phone || '') || req.ip
 });

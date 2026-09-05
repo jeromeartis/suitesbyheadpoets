@@ -227,7 +227,7 @@ barbershop-app/
   session store like `connect-sqlite3` or Redis.
 - **Rate limiting** (in-memory, via `express-rate-limit`) guards the endpoints that
   spend money or gate accounts: texted verification codes are capped at 8/hour per IP
-  and 5/day per phone number (plus a 45-second per-number resend cooldown), the
+  and 5/hour per phone number (plus a 45-second per-number resend cooldown), the
   walk-in check-in at 6/hour per IP, logins/signups at 12 per 15 min per IP, and
   customer bookings at 15/hour. Tune the numbers at the top of `server.js` under
   "rate limiting". Counters reset on restart. Also set a Twilio spending limit and
