@@ -885,10 +885,42 @@ footer {
   .hero-grid { grid-template-columns: 1fr; }
   .hero-stats { border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 20px; }
   .form-grid-2 { grid-template-columns: 1fr; }
-  .admin-shell { grid-template-columns: 1fr; }
-  .admin-side { display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--line); padding: 8px; }
-  .admin-side button { white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; }
-  .admin-side button.active { border-left: none; border-bottom-color: var(--brass); }
+
+  /* Stack the dashboard: the side nav becomes a compact scrollable tab strip
+     that sits at its natural height (auto), not a stretched grid column. */
+  .admin-shell {
+    display: block;
+    min-height: 0;
+  }
+  .admin-side {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding: 6px 8px;
+    position: sticky;
+    top: 0;
+    background: rgba(21,23,27,0.95);
+    backdrop-filter: blur(6px);
+    z-index: 40;
+  }
+  .admin-side::-webkit-scrollbar { display: none; }
+  .admin-side button {
+    display: block;
+    width: auto;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 10px 14px;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+  .admin-side button.active {
+    border-left: none;
+    border-bottom-color: var(--brass);
+    background: transparent;
+  }
 }
 
 /* ---------- tablet PORTRAIT only: make the walk-in CTA the standout action ----------
@@ -915,11 +947,52 @@ footer {
   .section { padding: 44px 0; }
   .hero-actions .btn { flex: 1 1 auto; text-align: center; justify-content: center; }
   .booking-panel { padding: 20px; }
-  .admin-main { padding: 20px 16px; }
+  .admin-main { padding: 20px 14px; }
   .card { padding: 18px; }
   .toolbar { flex-direction: column; align-items: stretch; }
   .toolbar .btn { width: 100%; justify-content: center; }
   .section-head { flex-direction: column; align-items: flex-start; }
+  .walkin-box { padding: 18px 14px; }
+
+  /* Tables become stacked cards on phones — one labelled line per field —
+     instead of a 6-column grid you have to scroll sideways to read. The
+     JS that builds each row adds data-label to every <td>. */
+  .table-wrap { overflow-x: visible; }
+  .table { min-width: 0; }
+  .table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .table tr {
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 6px 14px;
+    margin-bottom: 10px;
+  }
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+  .table tr td:last-child { border-bottom: none; }
+  .table td::before {
+    content: attr(data-label);
+    color: var(--paper-dim);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+    flex-shrink: 0;
+  }
+  .table td[data-label=""]::before,
+  .table td:not([data-label])::before { content: none; }
+  .table td[data-label=""] { justify-content: flex-end; gap: 8px; padding-top: 12px; }
+  .table td[colspan] { justify-content: center; text-align: center; color: var(--paper-dim); }
+  .table tr:hover td { background: none; }
 
   /* stack the day/on-off/start/end row instead of squeezing 4 columns */
   .avail-row {

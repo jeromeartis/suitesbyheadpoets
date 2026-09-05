@@ -118,7 +118,7 @@ document.getElementById('walkin-btn').addEventListener('click', async () => {
 async function loadWalkinLog() {
   const rows = await fetch('/api/walkin/log').then((r) => r.json());
   document.querySelector('#walkin-log-table tbody').innerHTML = rows.map((r) => `
-    <tr><td>${new Date(r.created_at).toLocaleString()}</td><td>${r.sent_to_count}</td><td>${escapeHtml(r.note || '—')}</td></tr>
+    <tr><td data-label="Sent">${new Date(r.created_at).toLocaleString()}</td><td data-label="Barbers notified">${r.sent_to_count}</td><td data-label="Note">${escapeHtml(r.note || '—')}</td></tr>
   `).join('') || '<tr><td colspan="3">No walk-in alerts sent yet.</td></tr>';
 }
 
@@ -127,12 +127,12 @@ async function loadWalkinQueue() {
   const rows = await fetch('/api/admin/walkin/queue').then((r) => r.json());
   document.querySelector('#walkin-queue-table tbody').innerHTML = rows.map((r) => `
     <tr>
-      <td>${new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-      <td>${escapeHtml(r.customer_name)}</td>
-      <td>${escapeHtml(r.customer_phone)}</td>
-      <td>${escapeHtml(r.note || '—')}</td>
-      <td>${r.claimed_by_name ? `<span class="pill confirmed">${escapeHtml(r.claimed_by_name)}</span>` : '<span style="color:var(--paper-dim);">Waiting for a claim…</span>'}</td>
-      <td style="white-space:nowrap;">
+      <td data-label="Checked in">${new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+      <td data-label="Name">${escapeHtml(r.customer_name)}</td>
+      <td data-label="Phone">${escapeHtml(r.customer_phone)}</td>
+      <td data-label="Note">${escapeHtml(r.note || '—')}</td>
+      <td data-label="Claimed by">${r.claimed_by_name ? `<span class="pill confirmed">${escapeHtml(r.claimed_by_name)}</span>` : '<span style="color:var(--paper-dim);">Waiting for a claim…</span>'}</td>
+      <td data-label="" style="white-space:nowrap;">
         <button class="btn btn-outline btn-sm walkin-resolve-btn" data-id="${r.id}" data-status="completed">Done</button>
         <button class="btn btn-outline btn-sm walkin-resolve-btn" data-id="${r.id}" data-status="cancelled">Remove</button>
       </td>
@@ -537,10 +537,10 @@ async function loadCustomers() {
   const rows = await fetch('/api/customers').then((r) => r.json());
   document.querySelector('#customers-table tbody').innerHTML = rows.map((c) => `
     <tr>
-      <td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.phone)}</td><td>${escapeHtml(c.email || '—')}</td>
-      <td>${c.preferred_barber_name ? escapeHtml(c.preferred_barber_name) : '<span style="color:var(--paper-dim);">None</span>'}</td>
-      <td>${escapeHtml(c.notes || '—')}</td>
-      <td><button class="btn btn-danger delete-customer" data-id="${c.id}">Remove</button></td>
+      <td data-label="Name">${escapeHtml(c.name)}</td><td data-label="Phone">${escapeHtml(c.phone)}</td><td data-label="Email">${escapeHtml(c.email || '—')}</td>
+      <td data-label="Preferred barber">${c.preferred_barber_name ? escapeHtml(c.preferred_barber_name) : '<span style="color:var(--paper-dim);">None</span>'}</td>
+      <td data-label="Notes">${escapeHtml(c.notes || '—')}</td>
+      <td data-label=""><button class="btn btn-danger delete-customer" data-id="${c.id}">Remove</button></td>
     </tr>
   `).join('') || '<tr><td colspan="6">No customers yet.</td></tr>';
 
