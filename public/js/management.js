@@ -48,7 +48,10 @@ function showLogin() {
 
 function showDashboard() {
   document.getElementById('login-shell').style.display = 'none';
-  document.getElementById('admin-shell').style.display = 'grid';
+  // Let the stylesheet pick the layout: a two-column grid on desktop, a stacked
+  // block with a tab strip on phones. Setting an inline 'grid' here would beat
+  // the mobile media query and force the desktop sidebar onto a phone.
+  document.getElementById('admin-shell').style.display = '';
   document.getElementById('logout-link').style.display = 'inline';
   loadBarbers();
   loadCustomers();
