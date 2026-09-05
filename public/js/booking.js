@@ -583,7 +583,7 @@ if (submitWalkinBtn) {
         banner.innerHTML = `<div class="banner info">You're checked in! Testing mode — SMS isn't configured, so here's the text ${data.sentTo} barber${data.sentTo === 1 ? '' : 's'} would have gotten:<br><strong>${escapeHtml(data.body)}</strong></div>`;
         setTimeout(returnHomeFromWalkin, 4500);
       } else {
-        banner.innerHTML = `<div class="banner success">You're checked in! We texted the barbers — first one free will grab you.</div>`;
+        banner.innerHTML = `<div class="banner success">You're checked in! We texted the barbers — first one free will grab you, and we'll text you their name and booth when they do.</div>`;
         setTimeout(returnHomeFromWalkin, 2200);
       }
     } catch (err) {

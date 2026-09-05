@@ -1459,8 +1459,21 @@ function claimWalkinForBarber(barberId, walkinQueueId) {
   if (claim.changes === 0) return { ok: false, error: 'Sorry — another barber already grabbed that one.' };
 
   const walkin = db.prepare(`
-    SELECT wq.*, c.name AS customer_name FROM walkin_queue wq JOIN customers c ON c.id = wq.customer_id WHERE wq.id = ?
+    SELECT wq.*, c.name AS customer_name, c.phone AS customer_phone
+    FROM walkin_queue wq JOIN customers c ON c.id = wq.customer_id WHERE wq.id = ?
   `).get(walkinQueueId);
+
+  const barber = db.prepare('SELECT name, booth_number, booth_name, specialty FROM barbers WHERE id = ?').get(barberId);
+
+  // Tell the walk-in customer who claimed them and where to go. This is the one
+  // text they get — it's the direct answer to the check-in they just submitted.
+  if (walkin.customer_phone && barber) {
+    const boothPart = (barber.booth_name || barber.booth_number) ? ` — ${boothLabel(barber)}` : '';
+    sendSms(
+      walkin.customer_phone,
+      `✂️ ${SHOP_NAME}: ${barber.name} is ready for you${boothPart}. Come on back when you're ready!`
+    );
+  }
 
   const others = db.prepare(`
     SELECT b.phone FROM walkin_offers wo JOIN barbers b ON b.id = wo.barber_id
@@ -1468,7 +1481,7 @@ function claimWalkinForBarber(barberId, walkinQueueId) {
   `).all(walkinQueueId, barberId);
   sendMassSms(others.map((o) => o.phone).filter(Boolean), `That walk-in (${walkin.customer_name}) was already claimed by another barber — thanks anyway!`);
 
-  return { ok: true, walkin };
+  return { ok: true, walkin, barber };
 }
 
 // A barber's currently-waiting walk-in offers, for the "accept from the portal"
