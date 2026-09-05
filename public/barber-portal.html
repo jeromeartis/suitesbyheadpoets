@@ -104,8 +104,12 @@
 
   <section class="section" style="padding-top:0;">
     <div class="wrap">
-      <div class="card">
-        <h3>Basics</h3>
+      <details class="card portal-card" id="pc-basics">
+        <summary>
+          <h3>Basics</h3>
+          <svg class="portal-card__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <div class="portal-card__body">
         <div id="save-banner"></div>
         <form id="profile-form">
           <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px;">
@@ -153,26 +157,38 @@
 
           <button type="submit" class="btn btn-primary">Save changes</button>
         </form>
-      </div>
+        </div>
+      </details>
     </div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="wrap">
-      <div class="section-head">
-        <div><span class="eyebrow">Your schedule</span><h2 style="margin:0;">Appointments</h2></div>
-        <button type="button" class="btn btn-outline" id="open-customers-modal-btn">👥 Manage my customers</button>
-      </div>
-      <p id="portal-appointments-range" style="margin-top:-14px;color:var(--paper-dim);font-size:0.9rem;"></p>
-      <div id="portal-appointments-list"></div>
-      <button type="button" class="btn btn-outline" id="portal-show-next-week-btn" style="margin-top:14px;">Show next week</button>
+      <details class="card portal-card" id="pc-appointments" open>
+        <summary>
+          <div><span class="eyebrow">Your schedule</span><h2 style="margin:4px 0 0;">Appointments</h2></div>
+          <svg class="portal-card__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <div class="portal-card__body">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+            <button type="button" class="btn btn-outline" id="open-customers-modal-btn">👥 Manage my customers</button>
+          </div>
+          <p id="portal-appointments-range" style="margin-top:0;color:var(--paper-dim);font-size:0.9rem;"></p>
+          <div id="portal-appointments-list"></div>
+          <button type="button" class="btn btn-outline" id="portal-show-next-week-btn" style="margin-top:14px;">Show next week</button>
+        </div>
+      </details>
     </div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="wrap">
-      <div class="card">
-        <h3>Book a customer</h3>
+      <details class="card portal-card" id="pc-book-customer">
+        <summary>
+          <h3>Book a customer</h3>
+          <svg class="portal-card__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <div class="portal-card__body">
         <p style="max-width:50ch;">Booking a walk-in, a phone call, or anyone else onto your own schedule. If the phone number is new, an account is created for them automatically.</p>
         <div id="pb-banner"></div>
         <div class="form-row">
@@ -200,14 +216,19 @@
         </div>
         <button class="btn btn-primary btn-block" id="pb-confirm-btn">Book appointment</button>
         <button type="button" class="btn btn-outline btn-block" id="open-recurring-modal-btn" style="margin-top:10px;">🔁 Set up a recurring appointment</button>
-      </div>
+        </div>
+      </details>
     </div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="wrap">
-      <div class="card">
-        <h3>Payment QR code</h3>
+      <details class="card portal-card" id="pc-payment-qr">
+        <summary>
+          <h3>Payment QR code</h3>
+          <svg class="portal-card__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <div class="portal-card__body">
         <p style="max-width:50ch;">Upload a QR code (Venmo, CashApp, Zelle, etc.) so customers can pay you directly. Shown on your public profile.</p>
         <div id="qr-preview-wrap" style="margin-bottom:14px;"></div>
         <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
@@ -217,14 +238,19 @@
           <button type="button" class="btn btn-outline" id="qr-upload-btn">Upload QR code</button>
         </div>
         <div id="qr-banner" style="margin-top:10px;"></div>
-      </div>
+        </div>
+      </details>
     </div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="wrap">
-      <div class="card">
-        <h3>Haircut gallery</h3>
+      <details class="card portal-card" id="pc-gallery">
+        <summary>
+          <h3>Haircut gallery</h3>
+          <svg class="portal-card__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <div class="portal-card__body">
         <p style="max-width:50ch;">Photos of your work, shown on your public profile.</p>
         <div class="gallery-grid" id="gallery-grid"></div>
         <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-top:10px;">
@@ -239,7 +265,8 @@
           <button type="button" class="btn btn-outline" id="gallery-upload-btn">Add to gallery</button>
         </div>
         <div id="gallery-banner" style="margin-top:10px;"></div>
-      </div>
+        </div>
+      </details>
     </div>
   </section>
 </div>

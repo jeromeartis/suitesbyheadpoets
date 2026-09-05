@@ -197,6 +197,25 @@ async function checkSession() {
   }
 }
 
+// Collapsible profile sections. Each barber's open/closed choice per section is
+// remembered in this browser; the HTML sets the first-visit defaults.
+const PORTAL_SECTIONS_KEY = 'bp-open-sections';
+function initCollapsibleSections() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(PORTAL_SECTIONS_KEY) || '{}'); } catch { saved = {}; }
+  document.querySelectorAll('details.portal-card').forEach((section) => {
+    if (!section.id) return;
+    if (Object.prototype.hasOwnProperty.call(saved, section.id)) section.open = saved[section.id];
+    section.addEventListener('toggle', () => {
+      let current = {};
+      try { current = JSON.parse(localStorage.getItem(PORTAL_SECTIONS_KEY) || '{}'); } catch { current = {}; }
+      current[section.id] = section.open;
+      try { localStorage.setItem(PORTAL_SECTIONS_KEY, JSON.stringify(current)); } catch { /* private mode, etc. */ }
+    });
+  });
+}
+initCollapsibleSections();
+
 function showPortal() {
   document.getElementById('login-shell').style.display = 'none';
   document.getElementById('portal-shell').style.display = 'block';

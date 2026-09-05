@@ -743,6 +743,40 @@ footer {
 }
 .card + .card { margin-top: 20px; }
 
+/* ---------- collapsible section (barber portal) ---------- */
+.portal-card { padding: 0; overflow: hidden; }
+.portal-card > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  user-select: none;
+}
+.portal-card > summary::-webkit-details-marker { display: none; }
+.portal-card > summary:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: -2px;
+}
+.portal-card > summary > :first-child { min-width: 0; }
+.portal-card > summary h2,
+.portal-card > summary h3 { margin: 0; }
+.portal-card[open] > summary { border-bottom: 1px solid var(--line); }
+.portal-card__chev {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--paper-dim);
+  transition: transform 0.2s ease;
+}
+.portal-card[open] > summary .portal-card__chev { transform: rotate(180deg); }
+.portal-card__body { padding: 24px; }
+@media (prefers-reduced-motion: reduce) {
+  .portal-card__chev { transition: none; }
+}
+
 .login-shell {
   min-height: 100vh;
   display: grid;
