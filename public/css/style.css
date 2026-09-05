@@ -744,11 +744,16 @@ footer {
 .card + .card { margin-top: 20px; }
 
 /* ---------- collapsible section (barber portal) ---------- */
+/* The portal is a stack of collapsible cards — keep them close together so the
+   whole page fits in a screen or two, especially on a phone. */
+#portal-shell .section { padding-bottom: 20px; }
+#portal-shell .section:first-child { padding-bottom: 26px; }
+
 .portal-card { padding: 0; overflow: hidden; }
 .portal-card > summary {
   list-style: none;
   cursor: pointer;
-  padding: 20px 24px;
+  padding: 18px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -955,14 +960,29 @@ footer {
   .toolbar .btn { width: 100%; justify-content: center; }
   .section-head { flex-direction: column; align-items: flex-start; }
 
-  /* stack the day/on-off/start/end row instead of squeezing 4 columns */
+  /* iOS Safari renders a fixed background sized to the whole (very tall) page,
+     which looks blurry/oversized and makes scrolling janky. Pin it to the
+     viewport instead on phones. */
+  body { background-attachment: scroll; }
+
+  /* portal: tighter collapsible cards, less air between them */
+  #portal-shell .section { padding-bottom: 12px; }
+  #portal-shell .section:first-child { padding-bottom: 18px; }
+  .portal-card > summary { padding: 15px 18px; }
+  .portal-card__body { padding: 18px; }
+
+  /* day/checkbox on its own row, then the two time pickers side by side —
+     two lines per day instead of the four squeezed columns (or three when
+     fully stacked), so the whole week fits without endless scrolling. */
   .avail-row {
-    grid-template-columns: 1fr;
-    gap: 6px;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 8px;
+    row-gap: 6px;
     padding: 10px 0;
     border-bottom: 1px solid var(--line);
   }
-  .avail-row label { display: flex; align-items: center; gap: 8px; }
+  .avail-row label { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+  .avail-row > span { display: none; }
   .avail-row select { width: 100%; }
 
   .service-row {
